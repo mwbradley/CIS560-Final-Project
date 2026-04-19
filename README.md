@@ -1,8 +1,8 @@
 # Project Concept
 Initial idea is sort of like fantasy football, but for soccer. Users will be able to see stats from three different leagues. These stats will include individual player stats, match stats, referee stats, etc. The primary function (not a fantasy football) would  be to find stats for the various leagues with some visuals to show when players and teams are doing good or bad. 
 
+![A table presenting the Fantasy Football schema.](.\design\FantasyFootball_Schema.png)
 ![A table presenting the data operations of the tables in the Fantasy Football schema.](.\design\Data_Operations.png)
-![A table presenting the data operations of the tables in the Fantasy Football schema.](.\design\FantasyFootball_Schema.png)
 
 # Start
 
