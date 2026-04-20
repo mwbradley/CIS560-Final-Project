@@ -6,6 +6,12 @@ Initial idea is sort of like fantasy football, but for soccer. Users will be abl
 
 # Start
 
+Before you start you will need to download a few things. Luckily it is all in the requirements text file. You will need to run the command
+
+pip install -r ./requirements.txt
+
+which will install what you need. There are a few more that you will be required to install but those are mentioned in the next few sections.
+
 ## \frontend
 
 We have not started frontend as we are in the early stages of creating and testing our database.
