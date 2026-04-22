@@ -19,6 +19,5 @@ FROM FantasyFootball.Player P
 	INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
 	INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
 	INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
-WHERE S.LeagueID = 1
 GROUP BY P.PlayerName, T.TeamName
 ORDER BY AVG(PM.Goals) ASC
