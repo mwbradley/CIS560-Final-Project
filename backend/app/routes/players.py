@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 
 players_bp = Blueprint("players", __name__)
 
+# Get all players across all leagues and teams
 @players_bp.route("/", methods=["GET"])
 def get_players():
     players = execute_query("""SELECT P.PlayerName, P.BirthDate
