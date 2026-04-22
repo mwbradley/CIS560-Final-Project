@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS FantasyFootball.Season;
 DROP TABLE IF EXISTS FantasyFootball.Player;
 DROP TABLE IF EXISTS FantasyFootball.TeamType;
 DROP TABLE IF EXISTS FantasyFootball.League;
-
+GO
 
 -- Independent tables (No FK's)
 
@@ -38,7 +38,7 @@ CREATE TABLE FantasyFootball.[Match]
 (
 	MatchID INT PRIMARY KEY IDENTITY(1, 1),
 	MatchDate DATE NOT NULL,
-	MatchLocatoin NVARCHAR(128) NOT NULL
+	MatchLocation NVARCHAR(128) NOT NULL
 );
 
 CREATE TABLE FantasyFootball.TeamType
