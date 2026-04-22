@@ -6,6 +6,16 @@
 bin/
 obj/
 
+# Python cache
+__pycache__/
+*.pyc
+
+# Node modules
+node_modules/
+
+# Vite build output
+dist/
+
 # DACPAC files
 *.dacpac
 
