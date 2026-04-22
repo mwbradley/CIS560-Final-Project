@@ -74,30 +74,30 @@ GO
 -- =============================================
 
 -- Premier League Players
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Erling Haaland',   '2000-07-21');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Kevin De Bruyne',  '1991-06-28');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Bukayo Saka',      '2001-09-05');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Martin Odegaard',  '1998-12-17');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Mohamed Salah',    '1992-06-15');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Virgil van Dijk',  '1991-07-08');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Cole Palmer',      '2002-05-06');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Raheem Sterling',  '1994-12-08');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Erling Haaland',   '2000-07-21', N'Forward');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Kevin De Bruyne',  '1991-06-28', N'Midfielder');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Bukayo Saka',      '2001-09-05', N'Midfielder');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Martin Odegaard',  '1998-12-17', N'Midfielder');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Mohamed Salah',    '1992-06-15', N'Forward');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Virgil van Dijk',  '1991-07-08', N'Defender');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Cole Palmer',      '2002-05-06', N'Midfielder');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Raheem Sterling',  '1994-12-08', N'Forward');
 GO
 
 -- La Liga Players
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Vinicius Jr',      '2000-07-12');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Jude Bellingham',  '2003-06-29');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Robert Lewandowski','1988-08-21');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Pedri',            '2002-11-25');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Antoine Griezmann','1991-03-21');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Alvaro Morata',    '1992-10-23');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Vinicius Jr',       '2000-07-12', N'Forward');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Jude Bellingham',   '2003-06-29', N'Midfielder');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Robert Lewandowski','1988-08-21', N'Forward');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Pedri',             '2002-11-25', N'Midfielder');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Antoine Griezmann', '1991-03-21', N'Forward');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Alvaro Morata',     '1992-10-23', N'Forward');
 GO
 
 -- Bundesliga Players
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Harry Kane',       '1993-07-28');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Jamal Musiala',    '2003-02-26');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Niclas Fullkrug',  '1993-02-09');
-INSERT INTO FantasyFootball.Player (PlayerName, BirthDate) VALUES (N'Florian Wirtz',    '2003-05-03');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Harry Kane',    '1993-07-28', N'Forward');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Jamal Musiala', '2003-02-26', N'Midfielder');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Niclas Fullkrug','1993-02-09', N'Forward');
+INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) VALUES (N'Florian Wirtz', '2003-05-03', N'Midfielder');
 GO
 
 -- =============================================
