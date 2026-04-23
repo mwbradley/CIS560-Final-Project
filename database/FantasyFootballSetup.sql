@@ -31,7 +31,8 @@ CREATE TABLE FantasyFootball.Player
 (
 	PlayerID INT PRIMARY KEY IDENTITY(1, 1),
 	PlayerName NVARCHAR(32) NOT NULL,
-	BirthDate DATE NOT NULL
+	BirthDate DATE NOT NULL,
+	Position NVARCHAR(32) NOT NULL
 );
 
 CREATE TABLE FantasyFootball.[Match]
