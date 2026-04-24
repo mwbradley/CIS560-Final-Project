@@ -2,7 +2,6 @@ from db import execute_query
 from flask import Blueprint, jsonify
 
 teams_bp = Blueprint("teamPlayer", __name__)
-teams_redcard_bp = Blueprint("num_red_cards", __name__)
 
 @teams_bp.route("/<teamName>", methods=["GET"])
 def get_players_team(teamName):
@@ -15,7 +14,7 @@ def get_players_team(teamName):
     """, (teamName,))
     return jsonify(teamPlayer)
 
-@teams_redcard_bp.route("/red-cards", methods=["GET"])
+@teams_bp.route("/red-cards", methods=["GET"])
 def get_num_redcards():
     num_red_cards = execute_query("""SELECT T.TeamName, S.SeasonName,
                                       SUM(PM.RedCards) OVER(PARTITION BY T.TeamName) AS TotalTeamRedCards

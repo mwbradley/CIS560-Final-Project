@@ -7,10 +7,12 @@ IF SCHEMA_ID(N'FantasyFootball') IS NULL -- Yall can change the name if you want
 -- DROP TABLES
 
 DROP TABLE IF EXISTS FantasyFootball.PlayerMatch;
+DROP TABLE IF EXISTS FantasyFootball.UserTeam;
 DROP TABLE IF EXISTS FantasyFootball.MatchTeam;
 DROP TABLE IF EXISTS FantasyFootball.TeamPlayer;
 DROP TABLE IF EXISTS FantasyFootball.[Match];
 DROP TABLE IF EXISTS FantasyFootball.TeamSeason;
+DROP TABLE IF EXISTS FantasyFootball.AppUser;
 DROP TABLE IF EXISTS FantasyFootball.Team;
 DROP TABLE IF EXISTS FantasyFootball.Referee;
 DROP TABLE IF EXISTS FantasyFootball.Season;
@@ -73,7 +75,7 @@ CREATE TABLE FantasyFootball.Season
 	SeasonEndDate DATE NOT NULL,
 
 	CONSTRAINT FK_Season_League FOREIGN KEY(LeagueID) REFERENCES FantasyFootball.League(LeagueID),
-	UNIQUE(SeasonName),
+	UNIQUE(LeagueID, SeasonName),
 	UNIQUE(SeasonStartDate)
 );
 GO
@@ -145,7 +147,24 @@ CREATE TABLE FantasyFootball.PlayerMatch
 	YellowCards INT DEFAULT 0,
 	RedCards INT DEFAULT 0
 );
-
+GO
 
 -- We need some test values before we commit to the full data
 -- I might make some to test, probably just generate some dummy values
+
+CREATE TABLE FantasyFootball.AppUser
+(
+	UserID       INT PRIMARY KEY IDENTITY(1,1),
+    Username     NVARCHAR(100) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(255) NOT NULL,
+    Email        NVARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE FantasyFootball.UserTeam
+(
+	UserTeamID   INT PRIMARY KEY IDENTITY(1,1),
+    UserID       INT NOT NULL,
+    TeamPlayerID INT NOT NULL,
+    CONSTRAINT FK_UserTeam_User       FOREIGN KEY (UserID)       REFERENCES FantasyFootball.AppUser(UserID),
+    CONSTRAINT FK_UserTeam_TeamPlayer FOREIGN KEY (TeamPlayerID) REFERENCES FantasyFootball.TeamPlayer(TeamPlayerID)
+)
