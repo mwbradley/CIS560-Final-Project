@@ -2,22 +2,22 @@ import { useEffect, useState } from "react"
 
 export default function Leagues()
 {
-    const [players, setPlayers] = useState([]);
+    const [leagues, setLeagues] = useState([]);
 
     useEffect(() =>
     {
-        fetch("http://localhost:5000/api/players/")
+        fetch("http://localhost:5000/api/leagues/")
         .then(res => res.json())
-        .then(data => setPlayers(data))
-        .catch (err => console.error("Failed to fetch players:", err));
+        .then(data => setLeagues(data))
+        .catch (err => console.error("Failed to fetch leagues:", err));
     }, []);
 
     return (
         <div>
             <h1>
-                Players
+                Leagues
             </h1>
-            {players.map(p => <p key={p.PlayerID}>{p.PlayerName} | {p.BirthDate} | {p.Position}</p>)}
+            {leagues.map(l => <p key={l.LeagueID}>{l.LeagueName} | {l.TeamCount}</p>)}
         </div>
     );
 }

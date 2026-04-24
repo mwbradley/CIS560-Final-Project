@@ -7,6 +7,7 @@ from routes.players import players_bp
 from routes.matches import match_bp
 from routes.teams import teams_bp
 from routes.seasons import season_bp
+from routes.leagues import league_bp
 from routes.auth import auth_bp
 
 app = Flask(__name__)
@@ -28,6 +29,9 @@ app.register_blueprint(teams_bp, url_prefix="/api/teams")
 
 # Seasons
 app.register_blueprint(season_bp, url_prefix="/api/seasons")
+
+# Leagues
+app.register_blueprint(league_bp, url_prefix="/api/leagues")
 
 if __name__ == "__main__":
     app.run(debug=True)
