@@ -2,7 +2,6 @@ from db import execute_query
 from flask import Blueprint, jsonify
 
 players_bp = Blueprint("players", __name__)
-players_oldest_to_score_bp = Blueprint("playersAge", __name__)
 
 # Get all players across all leagues and teams
 @players_bp.route("/", methods=["GET"])
@@ -18,9 +17,10 @@ def get_players():
     return jsonify(players)
 
 
-@players_oldest_to_score_bp.route("/oldest-scorer", methods=["GET"])
+@players_bp.route("/oldest-scorer", methods=["GET"])
 def get_oldest_player():
-    playersAge = execute_query("""SELECT P.PlayerName,
+    playersAge = execute_query("""SELECT TOP(1)
+                                    P.PlayerName,
                                     MAX((YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate))) AS PlayerAge,
                                     SUM(PM.Goals) AS TotalGoals
                                   FROM FantasyFootball.Player P
@@ -28,7 +28,7 @@ def get_oldest_player():
                                     INNER JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
                                     INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
                                     INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
-                                  GROUP BY P.PlayerName, (YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate)), PM.Goals
-                                  ORDER BY PM.Goals DESC
+                                  GROUP BY P.PlayerName, P.BirthDate, PM.Goals
+                                  ORDER BY TotalGoals DESC
    """)
     return jsonify(playersAge)
