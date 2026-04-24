@@ -6,7 +6,7 @@ players_bp = Blueprint("players", __name__)
 # Get all players across all leagues and teams
 @players_bp.route("/", methods=["GET"])
 def get_players():
-    players = execute_query("""SELECT P.PlayerName, P.BirthDate, P.Position
+    players = execute_query("""SELECT P.PlayerID, P.PlayerName, P.BirthDate, P.Position
                              FROM FantasyFootball.Player P
                                 INNER JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
                                 INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
