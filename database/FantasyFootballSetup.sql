@@ -75,7 +75,7 @@ CREATE TABLE FantasyFootball.Season
 	SeasonEndDate DATE NOT NULL,
 
 	CONSTRAINT FK_Season_League FOREIGN KEY(LeagueID) REFERENCES FantasyFootball.League(LeagueID),
-	UNIQUE(SeasonName),
+	UNIQUE(LeagueID, SeasonName),
 	UNIQUE(SeasonStartDate)
 );
 GO
