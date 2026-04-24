@@ -53,3 +53,6 @@ FROM FantasyFootball.Player P
 	INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
 GROUP BY P.PlayerName, P.BirthDate, PM.Goals
 ORDER BY TotalGoals DESC
+
+SELECT *
+FROM FantasyFootball.[User]

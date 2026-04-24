@@ -20,6 +20,8 @@ function Navigation() {
                         <Nav.Link as={Link} to="/teams" active={location.pathname === '/teams'}>Teams</Nav.Link>
                         <Nav.Link as={Link} to="/players" active={location.pathname === '/players'}>Players</Nav.Link>
                         <Nav.Link as={Link} to="/matches" active={location.pathname === '/matches'}>Matches</Nav.Link>
+                        <Nav.Link as={Link} to="/register" active={location.pathname === '/register'}>Register</Nav.Link>
+                        <Nav.Link as={Link} to="/login" active={location.pathname === '/login'}>Login</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Container>
