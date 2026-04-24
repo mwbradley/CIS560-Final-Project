@@ -8,11 +8,11 @@ export default function Leagues()
     {
         fetch("http://localhost:5000/api/players/")
         .then(res => res.json())
-        .then(res => setPlayers(data));
+        .then(data => setPlayers(data))
+        .catch (err => console.error("Failed to fetch players:", err));
     }, []);
 
-    return 
-    (
+    return (
         <div>
             <h1>
                 Players
