@@ -17,6 +17,7 @@ export default function App() {
       <Routes>
         <Route path="/leagues" element={<Leagues />} />
         <Route path="/players" element={<Players />} />
+        <Route path="/seasons" element={<Seasons />} />
         <Route path="/register" element={<Register/>}/>
         <Route path="/login" element={<Login/>}/>
       </Routes>
