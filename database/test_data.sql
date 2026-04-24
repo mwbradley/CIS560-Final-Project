@@ -15,22 +15,22 @@ GO
 -- =============================================
 -- Leagues
 -- =============================================
-INSERT INTO FantasyFootball.League DEFAULT VALUES;  -- LeagueID = 1 (Premier League)
-INSERT INTO FantasyFootball.League DEFAULT VALUES;  -- LeagueID = 2 (La Liga)
-INSERT INTO FantasyFootball.League DEFAULT VALUES;  -- LeagueID = 3 (Bundesliga)
+INSERT INTO FantasyFootball.League (LeagueName) VALUES (N'Premier League');  -- LeagueID = 1 (Premier League)
+INSERT INTO FantasyFootball.League (LeagueName) VALUES (N'La Liga');  -- LeagueID = 2 (La Liga)
+INSERT INTO FantasyFootball.League (LeagueName) VALUES (N'Bundesliga');  -- LeagueID = 3 (Bundesliga)
 GO
 
 -- =============================================
 -- Seasons
 -- =============================================
 INSERT INTO FantasyFootball.Season (LeagueID, SeasonName, SeasonStartDate, SeasonEndDate)
-VALUES (1, N'Premier League', '2023-08-11', '2024-05-19');
+VALUES (1, N'23-24', '2023-08-11', '2024-05-19');
 
 INSERT INTO FantasyFootball.Season (LeagueID, SeasonName, SeasonStartDate, SeasonEndDate)
-VALUES (2, N'La Liga', '2023-08-12', '2024-05-26');
+VALUES (2, N'23-24', '2023-08-12', '2024-05-26');
 
 INSERT INTO FantasyFootball.Season (LeagueID, SeasonName, SeasonStartDate, SeasonEndDate)
-VALUES (3, N'Bundesliga', '2023-08-18', '2024-05-18');
+VALUES (3, N'23-24', '2023-08-18', '2024-05-18');
 GO
 
 -- =============================================

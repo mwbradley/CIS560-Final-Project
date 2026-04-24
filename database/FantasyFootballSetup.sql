@@ -23,7 +23,8 @@ GO
 
 CREATE TABLE FantasyFootball.League
 (
-	LeagueID INT PRIMARY KEY IDENTITY(1, 1)
+	LeagueID INT PRIMARY KEY IDENTITY(1, 1),
+	LeagueName NVARCHAR(64) NOT NULL
 );
 
 
