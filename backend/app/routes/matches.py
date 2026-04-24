@@ -1,10 +1,9 @@
 from db import execute_query
 from flask import Blueprint, jsonify
 
-avg_goals_match_bp = Blueprint("avg_goals", __name__)
-num_matches_bp = Blueprint("num_matches", __name__)
+match_bp = Blueprint("avg_goals", __name__)
 
-@avg_goals_match_bp.route("/", methods=["GET"])
+@match_bp.route("/", methods=["GET"])
 def get_avg_goals_match():
     avg_goals = execute_query("""SELECT P.PlayerName, P.Position, T.TeamName,
                                 AVG(PM.Goals) AS AverageGoals
@@ -20,7 +19,7 @@ def get_avg_goals_match():
 
 
 # Change to be based on if the player played more than 20 minutes??
-@num_matches_bp.route("/<playerName>", methods=["GET"])
+@match_bp.route("/<playerName>", methods=["GET"])
 def get_num_matches(playerName):
     num_matches = execute_query("""SELECT P.PlayerName, P.Position, T.TeamName,
                                     COUNT(DISTINCT PM.MatchID) AS NumMatches

@@ -1,11 +1,11 @@
 from db import execute_query
 from flask import Blueprint, jsonify
 
-get_season_bp = Blueprint("get_season", __name__)
+season_bp = Blueprint("get_season", __name__)
 
 
 # Get a particular season
-@get_season_bp.route("/<seasonName>", methods=["GET"])
+@season_bp.route("/<seasonName>", methods=["GET"])
 def get_seasons(seasonName):
     season = execute_query(
         """SELECT S.SeasonName, S.SeasonStartDate, S.SeasonEndDate, L.LeagueName, T.TeamName
