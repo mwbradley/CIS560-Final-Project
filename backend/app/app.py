@@ -6,7 +6,7 @@ from routes.matches import avg_goals_match_bp, num_matches_bp
 from routes.teams import teams_bp
 #from routes.leagues import
 #from routes.referees import
-#from routes.seasons import 
+from routes.seasons import get_season_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -20,6 +20,9 @@ app.register_blueprint(num_matches_bp, url_prefix="/api/matches")
 
 # Teams
 app.register_blueprint(teams_bp, url_prefix="/api/teams")
+
+# Seasons
+app.register_blueprint(get_season_bp, url_prefix="/api/seasons")
 
 if __name__ == "__main__":
     app.run(debug=True)
