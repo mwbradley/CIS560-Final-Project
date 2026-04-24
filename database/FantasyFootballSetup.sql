@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS FantasyFootball.MatchTeam;
 DROP TABLE IF EXISTS FantasyFootball.TeamPlayer;
 DROP TABLE IF EXISTS FantasyFootball.[Match];
 DROP TABLE IF EXISTS FantasyFootball.TeamSeason;
-DROP TABLE IF EXISTS FantasyFootball.AppUser;
+DROP TABLE IF EXISTS FantasyFootball.[User];
 DROP TABLE IF EXISTS FantasyFootball.Team;
 DROP TABLE IF EXISTS FantasyFootball.Referee;
 DROP TABLE IF EXISTS FantasyFootball.Season;
@@ -152,12 +152,15 @@ GO
 -- We need some test values before we commit to the full data
 -- I might make some to test, probably just generate some dummy values
 
-CREATE TABLE FantasyFootball.AppUser
+CREATE TABLE FantasyFootball.[User]
 (
 	UserID       INT PRIMARY KEY IDENTITY(1,1),
-    Username     NVARCHAR(100) NOT NULL UNIQUE,
-    PasswordHash NVARCHAR(255) NOT NULL,
-    Email        NVARCHAR(100) NOT NULL UNIQUE
+    Username     NVARCHAR(64) NOT NULL,
+    PasswordHash NVARCHAR(256) NOT NULL,
+    Email        NVARCHAR(128) NOT NULL,
+
+	UNIQUE(UserName),
+	UNIQUE(Email)
 );
 
 CREATE TABLE FantasyFootball.UserTeam

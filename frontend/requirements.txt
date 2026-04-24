@@ -1,0 +1,4 @@
+npm install -D vite
+npm install react-router-dom
+npm install bootstrap
+npm install bootstrap react-bootstrap react-router-dom recharts
