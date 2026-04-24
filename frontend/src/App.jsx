@@ -1,10 +1,10 @@
 import { Routes, Route } from 'react-router-dom'
-//import Sidebar from './components/Sidebar'
+import Nav from './components/Navigation'
 //import Dashboard from './pages/Home'
 //import Leagues from './pages/Leagues'
 //import Seasons from './pages/Seasons'
 //import Teams from './pages/Teams'
-//import Players from './pages/Players'
+import Players from './pages/Players'
 //import Matches from './pages/Matches'
 //import styles from './App.module.css'
 import Register from './pages/Register'
@@ -17,7 +17,11 @@ export default function App() {
         <Route path="/register" element={<Register/>}/>
         <Route path="/login" element={<Login/>}/>
       </Routes>
-      <Leagues/>
+      <Nav />
+      <Routes>
+        <Route path="/leagues" element={<Leagues />} />
+        <Route path="/players" element={<Players />} />
+      </Routes>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 from db import execute_query
 from flask import Blueprint, jsonify
 
-season_bp = Blueprint("get_season", __name__)
+season_bp = Blueprint("get_seasons", __name__)
 
 
 # Get a particular season
