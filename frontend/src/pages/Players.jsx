@@ -3,14 +3,20 @@ import { useEffect, useState } from "react"
 export default function Leagues()
 {
     const [players, setPlayers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() =>
     {
         fetch("http://localhost:5000/api/players/")
         .then(res => res.json())
-        .then(data => setPlayers(data))
+        .then(data => {
+            setPlayers(data)
+            setLoading(false)  // Added this because of the slight delay
+        })
         .catch (err => console.error("Failed to fetch players:", err));
     }, []);
+
+    if (loading) return <p>Loading players...</p>
 
     return (
         <div>
