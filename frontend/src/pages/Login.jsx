@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom";
 
 export default function Login()
 {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
     const handleLogin = () => {
         fetch("http://localhost:5000/api/auth/login", {
@@ -14,7 +16,8 @@ export default function Login()
         .then(res => res.json())
         .then(data => {
             localStorage.setItem("token", data.token);
-            onLogin();
+            localStorage.setItem("username", data.username);
+            navigate("/home"); // this is different than than our start page which is /
       });
     }
 

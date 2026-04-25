@@ -27,4 +27,7 @@ def login():
     if not user or not bcrypt.check_password_hash(user[0]["PasswordHash"], data["password"]):
         return jsonify({"message": "Invalid credentials"}), 401
     token = create_access_token(identity=str(user[0]["UserID"]))
-    return jsonify({"token": token}), 200
+    return jsonify({
+        "token": token,
+        "username": user[0]["Username"]
+    }), 200
