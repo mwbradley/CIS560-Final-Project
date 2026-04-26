@@ -9,7 +9,7 @@ export default function Teams() {
     useEffect(() => {
         Promise.all([
             fetch("http://localhost:5000/api/teams/stats/1").then(res => res.json()),
-            fetch("http://localhost:5000/api/teams/wins-losses/1").then(res => res.json())
+            fetch("http://localhost:5000/api/teams/wins-losses/1").then(res => res.json()) //allows for the graph to show wins and losses for each season
         ])
             .then(([statsData, wlData]) => {
                 setTeams(statsData);
