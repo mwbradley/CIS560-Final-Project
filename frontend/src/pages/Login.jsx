@@ -15,9 +15,9 @@ export default function Login()
         })
         .then(res => res.json())
         .then(data => {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("username", data.username);
-            navigate("/home"); // this is different than than our start page which is /
+            sessionStorage.setItem("token", data.token);
+            sessionStorage.setItem("username", data.username);
+            navigate("/dashboard"); // this is different than than our start page which is /
       });
     }
 

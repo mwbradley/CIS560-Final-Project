@@ -9,6 +9,7 @@ from routes.teams import teams_bp
 from routes.seasons import season_bp
 from routes.leagues import league_bp
 from routes.auth import auth_bp
+from routes.userteam import userteam_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -32,6 +33,9 @@ app.register_blueprint(season_bp, url_prefix="/api/seasons")
 
 # Leagues
 app.register_blueprint(league_bp, url_prefix="/api/leagues")
+
+# UserTeam
+app.register_blueprint(userteam_bp, url_prefix="/api/userteam")
 
 if __name__ == "__main__":
     app.run(debug=True)

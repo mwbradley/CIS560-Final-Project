@@ -9,7 +9,7 @@ userteam_bp = Blueprint("userteam", __name__)
 def get_user_team():
     user_id = get_jwt_identity()
     team = execute_query("""
-        SELECT P.PlayerName, P.Position, T.TeamName
+        SELECT P.PlayerName, P.Position, T.TeamName, TP.TeamPlayerID
         FROM FantasyFootball.UserTeam UT
             INNER JOIN FantasyFootball.TeamPlayer TP ON TP.TeamPlayerID = UT.TeamPlayerID
             INNER JOIN FantasyFootball.Player P ON P.PlayerID = TP.PlayerID
