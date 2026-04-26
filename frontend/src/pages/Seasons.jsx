@@ -23,7 +23,7 @@ export default function Seasons()
             <h1>
                 Seasons
             </h1>
-            {seasons.map(s => <p key={s.SeasonID}>{s.SeasonName} | {s.LeagueName} |{s.SeasonStartDate} | {s.SeasonEndDate}</p>)}
+            {seasons.map(s => <p key={s.SeasonID}>{s.SeasonName} | {s.LeagueName} | {s.SeasonStartDate} - {s.SeasonEndDate}</p>)}
         </div>
     );
 }

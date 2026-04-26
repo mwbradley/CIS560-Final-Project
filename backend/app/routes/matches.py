@@ -16,10 +16,10 @@ def get_five_recent_matches():
            FROM FantasyFootball.Match M
                 INNER JOIN FantasyFootball.MatchTeam HMT ON HMT.MatchID = M.MatchID AND HMT.TeamTypeID = 1
                 INNER JOIN FantasyFootball.TeamSeason HTS ON HTS.TeamSeasonID = HMT.TeamSeasonID
-                INNER JOIN FantasyFootball.Team HT        ON HT.TeamID = HTS.TeamID
-                INNER JOIN FantasyFootball.MatchTeam AMT  ON AMT.MatchID = M.MatchID AND AMT.TeamTypeID = 2
+                INNER JOIN FantasyFootball.Team HT ON HT.TeamID = HTS.TeamID
+                INNER JOIN FantasyFootball.MatchTeam AMT ON AMT.MatchID = M.MatchID AND AMT.TeamTypeID = 2
                 INNER JOIN FantasyFootball.TeamSeason ATS ON ATS.TeamSeasonID = AMT.TeamSeasonID
-                INNER JOIN FantasyFootball.Team AT        ON AT.TeamID = ATS.TeamID
+                INNER JOIN FantasyFootball.Team AT ON AT.TeamID = ATS.TeamID
             ORDER BY M.MatchDate DESC
            """
     )
