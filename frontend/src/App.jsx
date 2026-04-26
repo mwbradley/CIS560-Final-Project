@@ -17,6 +17,8 @@ export default function App() {
     <div>
       <Nav />
       <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leagues"   element={<Leagues />} />
         <Route path="/seasons"  element={<Seasons />} />
@@ -24,7 +26,6 @@ export default function App() {
         <Route path="/teams"    element={<Teams />} />
         <Route path="/matches"  element={<Matches />} />
         <Route path="/register"  element={<Register />} />
-        <Route path="/login"     element={<Login />} />
       </Routes>
     </div>
   )
