@@ -12,35 +12,39 @@ export default function Teams() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <p>Loading teams...</p>
+    if (loading) return <p className="loading">Loading teams...</p>
 
     return (
-        <div>
-            <h1>Teams</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Team</th>
-                        <th>Season</th>
-                        <th>Goals</th>
-                        <th>Assists</th>
-                        <th>Yellow Cards</th>
-                        <th>Red Cards</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {teams.map(t => (
-                        <tr key={t.TeamName}>
-                            <td>{t.TeamName}</td>
-                            <td>{t.SeasonName}</td>
-                            <td>{t.TotalTeamGoals}</td>
-                            <td>{t.TotalTeamAssists}</td>
-                            <td>{t.TotalTeamYellowCards}</td>
-                            <td>{t.TotalTeamRedCards}</td>
+        <div className="page-container">
+            <h1 className="page-title">Teams</h1>
+            <p className="page-subtitle">Team stats for the current season</p>
+
+            <div className="card-dark">
+                <table className="table-dark-custom">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Season</th>
+                            <th>Goals</th>
+                            <th>Assists</th>
+                            <th>Yellow Cards</th>
+                            <th>Red Cards</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {teams.map(t => (
+                            <tr key={t.TeamName}>
+                                <td>{t.TeamName}</td>
+                                <td>{t.SeasonName}</td>
+                                <td>{t.TotalTeamGoals}</td>
+                                <td>{t.TotalTeamAssists}</td>
+                                <td>{t.TotalTeamYellowCards}</td>
+                                <td>{t.TotalTeamRedCards}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

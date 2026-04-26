@@ -1,29 +1,42 @@
 import { useEffect, useState } from "react"
 
-export default function Leagues()
-{
+export default function Leagues() {
     const [leagues, setLeagues] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         fetch("http://localhost:5000/api/leagues/")
-        .then(res => res.json())
-        .then(data => {
-            setLeagues(data)
-            setLoading(false)  // Added this because of the slight delay
-        })
-        .catch(err => console.error("Failed to fetch leagues:", err));
+            .then(res => res.json())
+            .then(data => setLeagues(data))
+            .catch(err => console.error("Failed to fetch leagues:", err))
+            .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <p>Loading leagues...</p>
+    if (loading) return <p className="loading">Loading leagues...</p>
 
     return (
-        <div>
-            <h1>
-                Leagues
-            </h1>
-            {leagues.map(l => <p key={l.LeagueID}>{l.LeagueName} | {l.TeamCount}</p>)}
+        <div className="page-container">
+            <h1 className="page-title">Leagues</h1>
+            <p className="page-subtitle">All leagues in the database</p>
+
+            <div className="card-dark">
+                <table className="table-dark-custom">
+                    <thead>
+                        <tr>
+                            <th>League</th>
+                            <th>Teams</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {leagues.map(l => (
+                            <tr key={l.LeagueID}>
+                                <td>{l.LeagueName}</td>
+                                <td>{l.TeamCount}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
