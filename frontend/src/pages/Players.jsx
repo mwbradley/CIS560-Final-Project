@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-export default function Leagues()
+export default function Players()
 {
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
