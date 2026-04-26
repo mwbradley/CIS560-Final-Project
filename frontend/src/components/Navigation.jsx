@@ -9,7 +9,7 @@ function Navigation() {
         <Navbar className="custom-nav" sticky="top" expand="lg" collapseOnSelect>
             <Container>
                 <Navbar.Brand as={Link} to="/" className="fw-bold">
-                    Fantasy Football Database
+                    Fantasy FC Database
                 </Navbar.Brand>
                 <Navbar.Toggle />
                 <Navbar.Collapse>

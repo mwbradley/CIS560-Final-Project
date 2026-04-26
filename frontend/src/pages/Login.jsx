@@ -1,8 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 
-export default function Login()
-{
+export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -22,11 +21,18 @@ export default function Login()
     }
 
     return (
-        <div>
-            <h1>Login</h1>
-            <input placeholder="Username" onChange={e => setUsername(e.target.value)} />
-            <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
-            <button onClick={handleLogin}>Login</button>
+        <div className="auth-container">
+            <h1 className="page-title">Login</h1>
+            <p className="page-subtitle">Sign in to your account</p>
+
+            <div className="auth-card">
+                <input className="auth-input" placeholder="Username" onChange={e => setUsername(e.target.value)} />
+                <input className="auth-input" placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
+                <button className="auth-button" onClick={handleLogin}>Login</button>
+                <p className="auth-link">
+                    Don't have an account? <a href="/register">Register</a>
+                </p>
+            </div>
         </div>
     );
 }

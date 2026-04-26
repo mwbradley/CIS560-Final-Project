@@ -3,7 +3,30 @@ from flask import Blueprint, jsonify
 
 match_bp = Blueprint("avg_goals", __name__)
 
+
 @match_bp.route("/", methods=["GET"])
+def get_five_recent_matches():
+    recent_matches = execute_query(
+        """SELECT TOP 5 M.MatchID, M.MatchDate, M.MatchLocation, HT.TeamName AS HomeTeam, AT.TeamName AS AwayTeam,
+                CASE HMT.Winner
+                   WHEN 1 THEN HT.TeamName
+                   WHEN 0 THEN AT.TeamName
+                   ELSE 'Draw'
+               END AS Winner
+           FROM FantasyFootball.Match M
+                INNER JOIN FantasyFootball.MatchTeam HMT ON HMT.MatchID = M.MatchID AND HMT.TeamTypeID = 1
+                INNER JOIN FantasyFootball.TeamSeason HTS ON HTS.TeamSeasonID = HMT.TeamSeasonID
+                INNER JOIN FantasyFootball.Team HT ON HT.TeamID = HTS.TeamID
+                INNER JOIN FantasyFootball.MatchTeam AMT ON AMT.MatchID = M.MatchID AND AMT.TeamTypeID = 2
+                INNER JOIN FantasyFootball.TeamSeason ATS ON ATS.TeamSeasonID = AMT.TeamSeasonID
+                INNER JOIN FantasyFootball.Team AT ON AT.TeamID = ATS.TeamID
+            ORDER BY M.MatchDate DESC
+           """
+    )
+    return jsonify(recent_matches)
+
+
+@match_bp.route("/avg-goals", methods=["GET"])
 def get_avg_goals_match():
     avg_goals = execute_query("""SELECT P.PlayerName, P.Position, T.TeamName,
                                 AVG(PM.Goals) AS AverageGoals
