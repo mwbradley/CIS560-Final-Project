@@ -14,7 +14,6 @@ export default function Dashboard() {
     const [playerName, setPlayerName] = useState("");
     const [teamName, setTeamName] = useState("");
     const [leagueName, setLeagueName] = useState("");
-    const [seasonDate, setSeasonDate] = useState("");
 
     const [seasonID, setSeasonID] = useState(1);
     const [pageNumber, setPageNumber] = useState(1);
@@ -57,11 +56,11 @@ export default function Dashboard() {
             });
     }
 
-    const handleSearch = () => {
+    const handleSearch = (currentSeasonID = seasonID) => {
         fetch("http://localhost:5000/api/players/search/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ playerName, teamName, leagueName, seasonDate, seasonID, pageNumber })
+            body: JSON.stringify({ playerName, teamName, leagueName, seasonID: currentSeasonID, pageNumber })
         })
             .then(res => res.json())
             .then(data => {
@@ -102,6 +101,11 @@ export default function Dashboard() {
         });
     }
 
+    const handleSeasonChange = (seasonID) => {
+        setSeasonID(seasonID);
+        handleSearch(seasonID);
+    }
+
     const incrementPage = () => {
         setPageNumber(prevCount => prevCount + 1);
     }
@@ -121,9 +125,9 @@ export default function Dashboard() {
             <div className="card-dark">
                 <div className="card-title">My Roster</div>
                 <div className="roster-buttons">
-                    <button onClick={() => setSeasonID(1)}>Season 2022</button>
-                    <button onClick={() => setSeasonID(2)}>Season 2023</button>
-                    <button onClick={() => setSeasonID(3)}>Season 2024</button>
+                    <button onClick={() => handleSeasonChange(1)}>Season 2022</button>
+                    <button onClick={() => handleSeasonChange(2)}>Season 2023</button>
+                    <button onClick={() => handleSeasonChange(3)}>Season 2024</button>
                 </div>
                 {userTeamPlayers.length === 0
                     ? <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No players on your roster yet.</p>
@@ -179,13 +183,6 @@ export default function Dashboard() {
                         className="auth-input"
                         placeholder="League name"
                         onChange={e => setLeagueName(e.target.value)}
-                        style={{ flex: 1, minWidth: 140 }}
-                    />
-                    <input
-                        className="auth-input"
-                        placeholder="Season"
-                        type="date"
-                        onChange={e => setSeasonDate(e.target.value)}
                         style={{ flex: 1, minWidth: 140 }}
                     />
                 </div>

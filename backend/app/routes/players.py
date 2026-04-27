@@ -60,9 +60,6 @@ def get_search_results():
     if data["leagueName"]:
         query += " AND L.LeagueName LIKE ?"
         params.append(f"%{data['leagueName']}%")
-    if data["seasonDate"]:
-      query += " AND S.SeasonStartDate >= CONVERT(date, ?, 23)"
-      params.append(data['seasonDate'])
     if data["seasonID"]:
         query += " AND S.SeasonID = ?"
         params.append((int)(data['seasonID']))
