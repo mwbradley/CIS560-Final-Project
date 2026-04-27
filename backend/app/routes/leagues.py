@@ -76,3 +76,19 @@ def get_rankings(season_id):
         (season_id,),
     )
     return jsonify(results)
+
+# Gets the league info for the specific season
+@league_bp.route("/info/<int:season_id>", methods=["GET"])
+def get_league_info(season_id):
+    results = execute_query(
+        """SELECT L.LeagueID, L.LeagueName, COUNT(DISTINCT T.TeamID) AS TeamCount
+             FROM FantasyFootball.League L
+             INNER JOIN FantasyFootball.Season S ON S.LeagueID = L.LeagueID
+             INNER JOIN FantasyFootball.TeamSeason TS ON TS.SeasonID = S.SeasonID
+             INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
+             WHERE S.SeasonID = ?
+             GROUP BY L.LeagueID, L.LeagueName
+             ORDER BY L.LeagueName ASC""",
+        (season_id,),
+    )
+    return jsonify(results)

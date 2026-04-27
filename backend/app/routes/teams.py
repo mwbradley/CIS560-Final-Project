@@ -35,15 +35,15 @@ def get_players_team(teamName):
 def get_team_stats(season_id):
     stats = execute_query(
         """SELECT T.TeamName, S.SeasonName,
-             SUM(PM.RedCards)    AS TotalTeamRedCards,
-             SUM(PM.YellowCards) AS TotalTeamYellowCards,
-             SUM(PM.Goals)       AS TotalTeamGoals,
-             SUM(PM.Assists)     AS TotalTeamAssists
-           FROM FantasyFootball.PlayerMatch PM
-           INNER JOIN FantasyFootball.TeamPlayer TP ON TP.TeamPlayerID = PM.TeamPlayerID
-           INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
-           INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
+             COALESCE(SUM(PM.RedCards), 0)    AS TotalTeamRedCards,
+             COALESCE(SUM(PM.YellowCards), 0) AS TotalTeamYellowCards,
+             COALESCE(SUM(PM.Goals), 0)       AS TotalTeamGoals,
+             COALESCE(SUM(PM.Assists), 0)     AS TotalTeamAssists
+           FROM FantasyFootball.Team T
+           INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamID = T.TeamID
            INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
+           LEFT JOIN FantasyFootball.TeamPlayer TP ON TP.TeamSeasonID = TS.TeamSeasonID
+           LEFT JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
            WHERE S.SeasonID = ?
            GROUP BY T.TeamName, S.SeasonName
            ORDER BY T.TeamName ASC""",

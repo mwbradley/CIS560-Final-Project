@@ -35,3 +35,15 @@ def get_seasons():
             ORDER BY S.SeasonName ASC"""
     )
     return jsonify(seasons)
+
+# Get seasons for a specific league
+@season_bp.route("/league/<int:league_id>", methods=["GET"])
+def get_seasons_by_league(league_id):
+    seasons = execute_query(
+        """SELECT S.SeasonID, S.SeasonName
+             FROM FantasyFootball.Season S
+             WHERE S.LeagueID = ?
+             ORDER BY S.SeasonStartDate DESC""",
+        (league_id,),
+    )
+    return jsonify(seasons)

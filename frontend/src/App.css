@@ -402,3 +402,37 @@ code {
   justify-content: center;
   gap: 20px;
 }
+
+/* Season Dropdown */
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.season-select {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.season-select:hover {
+  border-color: var(--accent-border);
+}
+
+.season-select:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.season-select option {
+  background: var(--bg3);
+  color: var(--text);
+}
