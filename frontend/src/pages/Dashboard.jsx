@@ -4,6 +4,8 @@ export default function Dashboard() {
     const username = sessionStorage.getItem("username");
     const token = sessionStorage.getItem("token");
 
+    console.log("TOKEN:", token);
+
     const [userTeamPlayers, setUserTeamPlayers] = useState([]);
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -14,19 +16,27 @@ export default function Dashboard() {
     const [leagueName, setLeagueName] = useState("");
     const [seasonDate, setSeasonDate] = useState("");
 
-    const [seasonID, setSeasonID] = useState("2");
+    const [seasonID, setSeasonID] = useState(1);
 
     const fetchRoster = () => {
-        fetch("http://localhost:5000/api/userteam/", {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(res => res.json())
-        .then(data => {
-            setUserTeamPlayers(data);
-            setLoading(false);
-        })
-        .catch(err => console.error("Failed to fetch players:", err));
-    }
+    fetch(`http://localhost:5000/api/userteam/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ seasonID })
+    })
+    .then(res => res.json())
+    .then(data => {
+        setUserTeamPlayers(Array.isArray(data) ? data : []);
+        setLoading(false);
+    })
+    .catch(err => {
+        console.error("Failed to fetch roster:", err);
+        setLoading(false);
+    });
+}
 
     useEffect(() => {
         fetchRoster();
@@ -55,7 +65,7 @@ export default function Dashboard() {
             });
     }
 
-    const handleAddPlayer = (teamPlayerID, seasonID) => {
+    const handleAddPlayer = (teamPlayerID) => {
         fetch("http://localhost:5000/api/userteam/add/", {
             method: "POST",
             headers: { 
@@ -98,9 +108,9 @@ export default function Dashboard() {
             <div className="card-dark">
                 <div className="card-title">My Roster</div>
                 <div className="roster-buttons">
-                    <button onClick={() => setSeasonID("22-23")}>Season 2022</button>
-                    <button onClick={() => setSeasonID("23-24")}>Season 2023</button>
-                    <button onClick={() => setSeasonID("24-25")}>Season 2024</button>
+                    <button onClick={() => setSeasonID(1)}>Season 2022</button>
+                    <button onClick={() => setSeasonID(2)}>Season 2023</button>
+                    <button onClick={() => setSeasonID(3)}>Season 2024</button>
                 </div>
                 {userTeamPlayers.length === 0
                     ? <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No players on your roster yet.</p>

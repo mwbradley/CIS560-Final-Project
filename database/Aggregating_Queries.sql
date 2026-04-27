@@ -64,3 +64,33 @@ FROM FantasyFootball.UserTeam
 
 SELECT *
 FROM FantasyFootball.PlayerMatch
+
+SELECT *
+FROM FantasyFootball.Season
+
+
+SELECT P.PlayerID, P.PlayerName,  
+	(YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate)) AS PlayerAge, 
+P.Position, TP.TeamPlayerID, S.SeasonID
+FROM FantasyFootball.Player P
+	INNER JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
+	INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
+	INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
+	INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
+	INNER JOIN FantasyFootball.League L ON L.LeagueID = S.LeagueID
+WHERE S.SeasonID = 1
+
+
+SELECT *
+FROM FantasyFootball.UserTeam
+
+
+ SELECT P.PlayerName, P.Position, T.TeamName, TP.TeamPlayerID
+        FROM FantasyFootball.UserTeam UT
+            INNER JOIN FantasyFootball.TeamPlayer TP ON TP.TeamPlayerID = UT.TeamPlayerID
+            INNER JOIN FantasyFootball.Player P ON P.PlayerID = TP.PlayerID
+            INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
+            INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
+            INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
+        WHERE UT.UserID = 1
+			AND UT.SeasonID = 1

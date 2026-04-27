@@ -4,11 +4,11 @@ from db import execute_query
 
 userteam_bp = Blueprint("userteam", __name__)
 
-@userteam_bp.route("/", methods=["GET"])
+@userteam_bp.route("/", methods=["POST"])
 @jwt_required()
 def get_user_team():
     user_id = get_jwt_identity()
-    seasonID = request.args.get("seasonID", "")
+    data = request.get_json() or {}  # ✅ read JSON body
 
     query = """
         SELECT P.PlayerName, P.Position, T.TeamName, TP.TeamPlayerID
@@ -22,12 +22,12 @@ def get_user_team():
     """
     params = [user_id]
 
-    if seasonID:
+    if data.get('seasonID'):
         query += " AND UT.SeasonID = ?"
-        params.append(seasonID)
+        params.append(data['seasonID'])
 
     team = execute_query(query, tuple(params))
-    return jsonify(team)
+    return jsonify(team), 200
 
 
 @userteam_bp.route("/add/", methods=["POST"])
@@ -36,8 +36,8 @@ def add_player():
     user_id = get_jwt_identity()
     data = request.get_json()
     execute_query(
-        "INSERT INTO FantasyFootball.UserTeam (UserID, TeamPlayerID) VALUES (?, ?)",
-        params=(user_id, data["teamPlayerID"]),
+        "INSERT INTO FantasyFootball.UserTeam (UserID, TeamPlayerID, SeasonID) VALUES (?, ?, ?)",
+        params=(user_id, data["teamPlayerID"], data["seasonID"]),
         fetchall=False
     )
     return jsonify({"message": "Player added to your team"}), 201

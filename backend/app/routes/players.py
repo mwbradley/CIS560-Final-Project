@@ -40,7 +40,7 @@ def get_search_results():
 
     query = """SELECT P.PlayerID, P.PlayerName,  
                 (YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate)) AS PlayerAge, 
-                P.Position, TP.TeamPlayerID
+                P.Position, TP.TeamPlayerID, S.SeasonID
                FROM FantasyFootball.Player P
                 INNER JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
                 INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
@@ -63,9 +63,9 @@ def get_search_results():
     if data["seasonDate"]:
       query += " AND S.SeasonStartDate >= CONVERT(date, ?, 23)"
       params.append(data['seasonDate'])
-    if data["seasonName"]:
-        query += " AND S.SeasonName = ?"
-        params.append(data['seasonName'])
+    if data["seasonID"]:
+        query += " AND S.SeasonID = ?"
+        params.append((int)(data['seasonID']))
 
     query += " ORDER BY P.PlayerName ASC"
 
