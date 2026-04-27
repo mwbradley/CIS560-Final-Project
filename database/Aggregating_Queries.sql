@@ -93,4 +93,38 @@ FROM FantasyFootball.UserTeam
             INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
             INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
         WHERE UT.UserID = 1
-			AND UT.SeasonID = 1
+			AND S.SeasonID = 1
+
+
+
+DECLARE @PageSize INT = 20,
+		@Page INT = 1;
+
+SELECT P.PlayerName, P.Position, P.Position, TP.TeamPlayerID, S.SeasonID,
+	(YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate)) AS PlayerAge
+FROM FantasyFootball.Player P
+	INNER JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
+    INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
+    INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
+    INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
+    INNER JOIN FantasyFootball.League L ON L.LeagueID = S.LeagueID
+GROUP BY P.PlayerName, P.Position, P.Position, TP.TeamPlayerID, S.SeasonID, P.BirthDate
+ORDER BY P.PlayerName ASC
+OFFSET (@PageSize * (@Page - 1)) ROWS FETCH NEXT @PageSize ROWS ONLY;
+
+
+SELECT T.TeamName,
+               SUM(IIF(MT.Winner = N'Winner', 1, 0)) AS Wins,
+               SUM(IIF (MT.Winner != N'Winner' AND MT.Winner IS NOT NULL, 1 , 0)) AS Losses,
+               SUM(IIF(MT.Winner IS NULL, 1, 0)) AS Draws
+           FROM FantasyFootball.Team T
+           INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamID = T.TeamID
+           INNER JOIN FantasyFootball.MatchTeam MT  ON MT.TeamSeasonID = TS.TeamSeasonID
+           INNER JOIN FantasyFootball.Season S       ON S.SeasonID = TS.SeasonID
+           WHERE S.SeasonID = 1
+           GROUP BY T.TeamName
+           ORDER BY Wins DESC
+
+
+SELECT *
+FROM FantasyFootball.MatchTeam

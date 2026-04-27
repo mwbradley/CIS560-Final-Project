@@ -125,7 +125,7 @@ CREATE TABLE FantasyFootball.MatchTeam
 	MatchID INT NOT NULL,
 	TeamTypeID INT NOT NULL,
 	TeamSeasonID INT NOT NULL,
-	Winner NVARCHAR(32), -- Same as TeamName
+	Winner NVARCHAR(32), -- Winner, Loser, or Draw
 
 	CONSTRAINT FK_MatchTeam_Match FOREIGN KEY(MatchID) REFERENCES FantasyFootball.[Match](MatchID),
 	CONSTRAINT FK_MatchTeam_TeamType FOREIGN KEY(TeamTypeID) REFERENCES FantasyFootball.TeamType(TeamTypeID),
