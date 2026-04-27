@@ -9,8 +9,8 @@ def get_five_recent_matches():
     recent_matches = execute_query(
         """SELECT TOP 5 M.MatchID, M.MatchDate, M.MatchLocation, HT.TeamName AS HomeTeam, AT.TeamName AS AwayTeam,
                 CASE HMT.Winner
-                   WHEN 1 THEN HT.TeamName
-                   WHEN 0 THEN AT.TeamName
+                   WHEN N'Winner' THEN HT.TeamName
+                   WHEN N'Loser' THEN AT.TeamName
                    ELSE 'Draw'
                END AS Winner
            FROM FantasyFootball.Match M
