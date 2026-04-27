@@ -56,3 +56,6 @@ ORDER BY TotalGoals DESC
 
 SELECT *
 FROM FantasyFootball.[User]
+
+SELECT *
+FROM FantasyFootball.UserTeam

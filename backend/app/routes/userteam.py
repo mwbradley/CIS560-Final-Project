@@ -19,26 +19,26 @@ def get_user_team():
     """, params=(user_id,))
     return jsonify(team)
 
-@userteam_bp.route("/add", methods=["POST"])
+@userteam_bp.route("/add/", methods=["POST"])
 @jwt_required()
 def add_player():
     user_id = get_jwt_identity()
     data = request.get_json()
     execute_query(
         "INSERT INTO FantasyFootball.UserTeam (UserID, TeamPlayerID) VALUES (?, ?)",
-        params=(user_id, data["TeamPlayerID"]),
+        params=(user_id, data["teamPlayerID"]),
         fetchall=False
     )
     return jsonify({"message": "Player added to your team"}), 201
 
-@userteam_bp.route("/remove", methods=["DELETE"])
+@userteam_bp.route("/remove/", methods=["DELETE"])
 @jwt_required()
 def remove_player():
     user_id = get_jwt_identity()
     data = request.get_json()
     execute_query(
         "DELETE FROM FantasyFootball.UserTeam WHERE UserID = ? AND TeamPlayerID = ?",
-        params=(user_id, data["TeamPlayerID"]),
+        params=(user_id, data["teamPlayerID"]),
         fetchall=False
     )
     return jsonify({"message": "Player removed from your team"})

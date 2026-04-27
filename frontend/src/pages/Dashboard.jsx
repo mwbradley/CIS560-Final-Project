@@ -14,16 +14,20 @@ export default function Dashboard() {
     const [leagueName, setLeagueName] = useState("");
     const [seasonDate, setSeasonDate] = useState("");
 
-    useEffect(() => {
+    const fetchRoster = () => {
         fetch("http://localhost:5000/api/userteam/", {
             headers: { Authorization: `Bearer ${token}` }
         })
-            .then(res => res.json())
-            .then(data => {
-                setUserTeamPlayers(data);
-                setLoading(false);
-            })
-            .catch(err => console.error("Failed to fetch players:", err));
+        .then(res => res.json())
+        .then(data => {
+            setUserTeamPlayers(data);
+            setLoading(false);
+        })
+        .catch(err => console.error("Failed to fetch players:", err));
+    }
+
+    useEffect(() => {
+        fetchRoster();
     }, []);
 
     const handleDisplayPlayers = () => {
@@ -47,6 +51,38 @@ export default function Dashboard() {
                 setToggle(true);
                 setPlayers(data);
             });
+    }
+
+    const handleAddPlayer = (teamPlayerID) => {
+        fetch("http://localhost:5000/api/userteam/add/", {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ teamPlayerID })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data.message);
+            fetchRoster();
+        });
+    }
+
+    const handleRemovePlayer = (teamPlayerID) => {
+        fetch("http://localhost:5000/api/userteam/remove/", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ teamPlayerID })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data.message);
+            fetchRoster();
+        });
     }
 
     if (loading) return <p className="loading">Loading...</p>
@@ -75,17 +111,21 @@ export default function Dashboard() {
                                     <td>{u.PlayerName}</td>
                                     <td>{u.Position}</td>
                                     <td>{u.TeamName}</td>
+                                    <td>
+                                        <button onClick={() => handleRemovePlayer(u.TeamPlayerID)}>Remove</button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 }
-                <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                {/* <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                     <button className="auth-button" onClick={handleDisplayPlayers}
                         style={{ width: 'auto', padding: '8px 20px' }}>
                         {toggle ? 'Hide Players' : 'Add Player to Roster'}
+                        Add Player to Roster
                     </button>
-                </div>
+                </div> */}
             </div>
 
             {/* Search */}
@@ -138,6 +178,9 @@ export default function Dashboard() {
                                     <td>{p.PlayerName}</td>
                                     <td>{p.Position}</td>
                                     <td>{p.PlayerAge}</td>
+                                    <td>
+                                        <button onClick={() => handleAddPlayer(p.TeamPlayerID)}>Add</button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
