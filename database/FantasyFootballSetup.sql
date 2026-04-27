@@ -168,6 +168,6 @@ CREATE TABLE FantasyFootball.UserTeam
 	UserTeamID   INT PRIMARY KEY IDENTITY(1,1),
     UserID       INT NOT NULL,
     TeamPlayerID INT NOT NULL,
-    CONSTRAINT FK_UserTeam_User       FOREIGN KEY (UserID)       REFERENCES FantasyFootball.AppUser(UserID),
+    CONSTRAINT FK_UserTeam_User       FOREIGN KEY (UserID)       REFERENCES FantasyFootball.[User](UserID),
     CONSTRAINT FK_UserTeam_TeamPlayer FOREIGN KEY (TeamPlayerID) REFERENCES FantasyFootball.TeamPlayer(TeamPlayerID)
 )

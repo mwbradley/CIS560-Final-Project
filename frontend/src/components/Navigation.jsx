@@ -14,7 +14,7 @@ function Navigation() {
                 <Navbar.Toggle />
                 <Navbar.Collapse>
                     <Nav className="ms-auto fw-bold fs-6">
-                        <Nav.Link as={Link} to="/" active={location.pathname === '/'}>Home</Nav.Link>
+                        <Nav.Link as={Link} to="/dashboard" active={location.pathname === '/dashboard'}>Dashboard</Nav.Link>
                         <Nav.Link as={Link} to="/leagues" active={location.pathname === '/leagues'}>Leagues</Nav.Link>
                         <Nav.Link as={Link} to="/seasons" active={location.pathname === '/seasons'}>Seasons</Nav.Link>
                         <Nav.Link as={Link} to="/teams" active={location.pathname === '/teams'}>Teams</Nav.Link>
