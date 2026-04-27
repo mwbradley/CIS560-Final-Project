@@ -57,8 +57,8 @@ def parse_filename(filepath):
     parts = filename.split("_")
     # parts = ["Bundesliga", "2022", "23", "player", "match"]
     league_name = parts[0]
-    season_label = f"{parts[1]}/{parts[2]}"
-    season_name = f"{league_name} {season_label}"
+    season_name = f"{parts[1]}/{parts[2]}"
+    #season_name = f"{season_label}"
     return league_name, season_name
 
 # =============================================
