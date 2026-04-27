@@ -63,6 +63,9 @@ def get_search_results():
     if data["seasonDate"]:
       query += " AND S.SeasonStartDate >= CONVERT(date, ?, 23)"
       params.append(data['seasonDate'])
+    if data["seasonName"]:
+        query += " AND S.SeasonName = ?"
+        params.append(data['seasonName'])
 
     query += " ORDER BY P.PlayerName ASC"
 

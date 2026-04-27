@@ -14,6 +14,8 @@ export default function Dashboard() {
     const [leagueName, setLeagueName] = useState("");
     const [seasonDate, setSeasonDate] = useState("");
 
+    const [seasonID, setSeasonID] = useState("2");
+
     const fetchRoster = () => {
         fetch("http://localhost:5000/api/userteam/", {
             headers: { Authorization: `Bearer ${token}` }
@@ -28,7 +30,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchRoster();
-    }, []);
+    }, [seasonID]);
 
     const handleDisplayPlayers = () => {
         fetch("http://localhost:5000/api/players/")
@@ -44,7 +46,7 @@ export default function Dashboard() {
         fetch("http://localhost:5000/api/players/search/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ playerName, teamName, leagueName, seasonDate })
+            body: JSON.stringify({ playerName, teamName, leagueName, seasonDate, seasonID })
         })
             .then(res => res.json())
             .then(data => {
@@ -53,14 +55,14 @@ export default function Dashboard() {
             });
     }
 
-    const handleAddPlayer = (teamPlayerID) => {
+    const handleAddPlayer = (teamPlayerID, seasonID) => {
         fetch("http://localhost:5000/api/userteam/add/", {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ teamPlayerID })
+            body: JSON.stringify({ teamPlayerID, seasonID })
         })
         .then(res => res.json())
         .then(data => {
@@ -95,10 +97,10 @@ export default function Dashboard() {
             {/* Roster */}
             <div className="card-dark">
                 <div className="card-title">My Roster</div>
-                <div>
-                    <button>Season 2023</button>
-                    <button>Season 2024</button>
-                    <button>Season 2025</button>
+                <div className="roster-buttons">
+                    <button onClick={() => setSeasonID("22-23")}>Season 2022</button>
+                    <button onClick={() => setSeasonID("23-24")}>Season 2023</button>
+                    <button onClick={() => setSeasonID("24-25")}>Season 2024</button>
                 </div>
                 {userTeamPlayers.length === 0
                     ? <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No players on your roster yet.</p>
@@ -180,7 +182,9 @@ export default function Dashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {players.map(p => (
+                            {players
+                                .filter(p => !userTeamPlayers.some(u => u.TeamPlayerID === p.TeamPlayerID))
+                                .map(p => (
                                 <tr key={p.PlayerID}>
                                     <td>{p.PlayerName}</td>
                                     <td>{p.Position}</td>

@@ -396,3 +396,9 @@ code {
     width: '100%';
     cursor: 'pointer';
 }
+
+.roster-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}

@@ -2,6 +2,7 @@ from flask import Flask
 import os
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from datetime import timedelta
 # the routes should be imported as well.
 from routes.players import players_bp
 from routes.matches import match_bp
@@ -14,6 +15,8 @@ from routes.userteam import userteam_bp
 app = Flask(__name__)
 CORS(app)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=12)
+
 JWTManager(app)
 
 # Authorization

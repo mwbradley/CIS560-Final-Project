@@ -8,16 +8,27 @@ userteam_bp = Blueprint("userteam", __name__)
 @jwt_required()
 def get_user_team():
     user_id = get_jwt_identity()
-    team = execute_query("""
+    seasonID = request.args.get("seasonID", "")
+
+    query = """
         SELECT P.PlayerName, P.Position, T.TeamName, TP.TeamPlayerID
         FROM FantasyFootball.UserTeam UT
             INNER JOIN FantasyFootball.TeamPlayer TP ON TP.TeamPlayerID = UT.TeamPlayerID
             INNER JOIN FantasyFootball.Player P ON P.PlayerID = TP.PlayerID
             INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
+            INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
             INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
         WHERE UT.UserID = ?
-    """, params=(user_id,))
+    """
+    params = [user_id]
+
+    if seasonID:
+        query += " AND UT.SeasonID = ?"
+        params.append(seasonID)
+
+    team = execute_query(query, tuple(params))
     return jsonify(team)
+
 
 @userteam_bp.route("/add/", methods=["POST"])
 @jwt_required()

@@ -6,25 +6,34 @@ Initial idea is sort of like fantasy football, but for soccer. Users will be abl
 
 # Start
 
-Before you start you will need to download a few things. Luckily it is all in the requirements text file. You will need to run the command
+To be able to run the project you must do a couple of things. The first is to set up a virtual environment (see below) and run the the command
 
 pip install -r ./requirements.txt
 
-which will install what you need. There are a few more that you will be required to install but those are mentioned in the next few sections.
+which will install what you need. There are a few more steps that you will be required to install but those are mentioned in the next few sections.
 
-## \frontend
-
-We have not started frontend as we are in the early stages of creating and testing our database.
-
-## \backend
-
-### app
-
-app.py is the script that will start the program we will run in the virtual environment (venv). To start you will cd into the backend directory and start the venv (see below for more help). Once you have the venv running then you will be able to use the command
+To start the program you will need to go into a virtual environment (venv) and run the command
 
 python app.py
 
-which will start the program.
+then you will need to cd into the frontend folder and run
+
+npm start
+o
+
+and it will open the webpage which is a login page. 
+
+If you do not have anything installed, see below and it will walk you through the steps to properly install everything.
+
+## \frontend
+
+Frontend was done using ReactJS. To be able to run the program you first must install all the dependencys by going into the frontend directory and running the command
+
+npm install
+
+which will install everything you need.
+
+## \backend
 
 ### venv
 
@@ -37,6 +46,14 @@ python -m venv venv
 To run your venv (if you are on windows)
 
 venv\Scripts\activate
+
+### app
+
+app.py is the script that will start the program we will run in the virtual environment (venv). To start you will cd into the backend directory and start the venv (see below for more help). Once you have the venv running then you will be able to use the command
+
+python app.py
+
+which will start the program.
 
 ### db.py
 

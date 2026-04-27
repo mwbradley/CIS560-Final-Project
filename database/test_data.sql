@@ -36,13 +36,13 @@ GO
 -- =============================================
 -- Referees
 -- =============================================
-INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (1, N'Michael Oliver');
-INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (1, N'Anthony Taylor');
-INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (2, N'Jesus Gil Manzano');
-INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (2, N'Ricardo de Burgos');
-INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (3, N'Felix Zwayer');
-INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (3, N'Daniel Siebert');
-GO
+-- INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (1, N'Michael Oliver');
+-- INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (1, N'Anthony Taylor');
+-- INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (2, N'Jesus Gil Manzano');
+-- INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (2, N'Ricardo de Burgos');
+-- INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (3, N'Felix Zwayer');
+-- INSERT INTO FantasyFootball.Referee (LeagueID, RefereeName) VALUES (3, N'Daniel Siebert');
+-- GO
 
 -- =============================================
 -- Teams
@@ -157,19 +157,19 @@ GO
 -- =============================================
 
 -- Premier League Matches
-INSERT INTO FantasyFootball.[Match] (MatchDate, MatchLocation) VALUES ('2023-08-19', N'Etihad Stadium');
-INSERT INTO FantasyFootball.[Match](MatchDate, MatchLocation) VALUES ('2023-08-20', N'Emirates Stadium');
-INSERT INTO FantasyFootball.[Match] (MatchDate, MatchLocation) VALUES ('2023-09-02', N'Stamford Bridge');
+INSERT INTO FantasyFootball.[Match] (MatchDate) VALUES ('2023-08-19');
+INSERT INTO FantasyFootball.[Match] (MatchDate) VALUES ('2023-08-20');
+INSERT INTO FantasyFootball.[Match] (MatchDate) VALUES ('2023-09-02');
 GO
 
 -- La Liga Matches
-INSERT INTO FantasyFootball.[Match] (MatchDate, MatchLocation) VALUES ('2023-08-20', N'Santiago Bernabeu');
-INSERT INTO FantasyFootball.[Match] (MatchDate, MatchLocation) VALUES ('2023-08-27', N'Camp Nou');
+INSERT INTO FantasyFootball.[Match] (MatchDate) VALUES ('2023-08-20');
+INSERT INTO FantasyFootball.[Match] (MatchDate) VALUES ('2023-08-27');
 GO
 
 -- Bundesliga Matches
-INSERT INTO FantasyFootball.[Match] (MatchDate, MatchLocation) VALUES ('2023-08-18', N'Allianz Arena');
-INSERT INTO FantasyFootball.[Match] (MatchDate, MatchLocation) VALUES ('2023-08-26', N'Signal Iduna Park');
+INSERT INTO FantasyFootball.[Match] (MatchDate) VALUES ('2023-08-18');
+INSERT INTO FantasyFootball.[Match] (MatchDate) VALUES ('2023-08-26');
 GO
 
 -- =============================================

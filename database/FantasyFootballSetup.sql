@@ -41,8 +41,8 @@ CREATE TABLE FantasyFootball.Player
 CREATE TABLE FantasyFootball.[Match]
 (
 	MatchID INT PRIMARY KEY IDENTITY(1, 1),
-	MatchDate DATE NOT NULL,
-	MatchLocation NVARCHAR(128) NOT NULL
+	MatchDate DATE NOT NULL
+	-- MatchLocation NVARCHAR(128) NOT NULL
 );
 
 CREATE TABLE FantasyFootball.TeamType
@@ -56,14 +56,14 @@ GO
 
 -- Tables Dependent on League
 
-CREATE TABLE FantasyFootball.Referee
-(
-	RefereeID INT PRIMARY KEY IDENTITY(1, 1),
-	LeagueID INT NOT NULL,
-	RefereeName NVARCHAR(64) NOT NULL,
+-- CREATE TABLE FantasyFootball.Referee
+-- (
+-- 	RefereeID INT PRIMARY KEY IDENTITY(1, 1),
+-- 	LeagueID INT NOT NULL,
+-- 	RefereeName NVARCHAR(64) NOT NULL,
 
-	CONSTRAINT FK_Referee_League FOREIGN KEY(LeagueID) REFERENCES FantasyFootball.League(LeagueID)
-);
+-- 	CONSTRAINT FK_Referee_League FOREIGN KEY(LeagueID) REFERENCES FantasyFootball.League(LeagueID)
+-- );
 
 
 CREATE TABLE FantasyFootball.Season
@@ -168,6 +168,10 @@ CREATE TABLE FantasyFootball.UserTeam
 	UserTeamID   INT PRIMARY KEY IDENTITY(1,1),
     UserID       INT NOT NULL,
     TeamPlayerID INT NOT NULL,
+	SeasonID 	 INT NOT NULL,
+
     CONSTRAINT FK_UserTeam_User       FOREIGN KEY (UserID)       REFERENCES FantasyFootball.[User](UserID),
-    CONSTRAINT FK_UserTeam_TeamPlayer FOREIGN KEY (TeamPlayerID) REFERENCES FantasyFootball.TeamPlayer(TeamPlayerID)
+    CONSTRAINT FK_UserTeam_TeamPlayer FOREIGN KEY (TeamPlayerID) REFERENCES FantasyFootball.TeamPlayer(TeamPlayerID),
+	CONSTRAINT FK_UserTeam_Season	  FOREIGN KEY (SeasonID)	 REFERENCES FantasyFootball.Season(SeasonID),
+	UNIQUE(UserID, TeamPlayerID, SeasonID)
 )
