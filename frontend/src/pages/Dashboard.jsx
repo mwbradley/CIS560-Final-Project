@@ -17,6 +17,7 @@ export default function Dashboard() {
     const [seasonDate, setSeasonDate] = useState("");
 
     const [seasonID, setSeasonID] = useState(1);
+    const [pageNumber, setPageNumber] = useState(1);
 
     const fetchRoster = () => {
     fetch(`http://localhost:5000/api/userteam/`, {
@@ -42,6 +43,10 @@ export default function Dashboard() {
         fetchRoster();
     }, [seasonID]);
 
+    useEffect(() => {
+    handleSearch();
+    }, [pageNumber]);
+
     const handleDisplayPlayers = () => {
         fetch("http://localhost:5000/api/players/")
             .then(res => res.json())
@@ -56,7 +61,7 @@ export default function Dashboard() {
         fetch("http://localhost:5000/api/players/search/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ playerName, teamName, leagueName, seasonDate, seasonID })
+            body: JSON.stringify({ playerName, teamName, leagueName, seasonDate, seasonID, pageNumber })
         })
             .then(res => res.json())
             .then(data => {
@@ -95,6 +100,14 @@ export default function Dashboard() {
             console.log(data.message);
             fetchRoster();
         });
+    }
+
+    const incrementPage = () => {
+        setPageNumber(prevCount => prevCount + 1);
+    }
+
+    const decrementPage = () => {
+        setPageNumber(prevCount => prevCount - 1);
     }
 
     if (loading) return <p className="loading">Loading...</p>
@@ -200,13 +213,17 @@ export default function Dashboard() {
                                     <td>{p.Position}</td>
                                     <td>{p.PlayerAge}</td>
                                     <td>
-                                        <button onClick={() => handleAddPlayer(p.TeamPlayerID)}>Add</button>
+                                        <button onClick={() => handleAddPlayer(p.TeamPlayerID)} disabled={userTeamPlayers.length === 11}>Add</button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 )}
+                <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: "center" }}>
+                    <button onClick={() => decrementPage()} disabled={pageNumber === 1}>Previous Page</button>
+                    <button onClick={() => incrementPage()} disabled={players.length < 20}>Next Page</button>
+                </div>
             </div>
         </div>
     );

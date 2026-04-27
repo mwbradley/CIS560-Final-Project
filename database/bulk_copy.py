@@ -284,8 +284,20 @@ def seed_file(filepath):
             if len(parts) == 2 and parts[0].strip().isdigit() and parts[1].strip().isdigit():
                 home_score = int(parts[0].strip())
                 away_score = int(parts[1].strip())
-                home_winner = 1 if home_score > away_score else 0
-                away_winner = 1 if away_score > home_score else 0
+                # home_winner = "Winner" if home_score > away_score else "Loser"
+                # away_winner = "Winner" if away_score > home_score else "Loser"
+                if home_score > away_score:
+                    home_winner = "Winner"
+                elif home_score < away_score:
+                    home_winner = "Loser"
+                if away_score > home_winner:
+                    away_winner = "Winner"
+                elif away_score < home_winner:
+                    away_winner = "Loser"
+                if home_score == away_score:
+                    home_winner = "Draw"
+                    away_winner = "Draw"
+                
         except Exception:
             pass  # leave winner as None if score can't be parsed
 

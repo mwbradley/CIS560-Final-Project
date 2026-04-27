@@ -68,9 +68,8 @@ def get_search_results():
         params.append((int)(data['seasonID']))
 
     query += " ORDER BY P.PlayerName ASC"
-
-    print(f"seasonDate value: '{data['seasonDate']}'")
-    print(f"params: {params}")
+    query += " OFFSET (20 * (? - 1)) ROWS FETCH NEXT 20 ROWS ONLY"
+    params.append((int)(data['pageNumber']))
 
     search_results = execute_query(query, params)
     return jsonify(search_results)
