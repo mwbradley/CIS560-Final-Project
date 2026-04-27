@@ -244,13 +244,13 @@ code {
 }
 
 .table-dark-custom th {
-  text-align: left;
+  text-align: center;
   font-size: 11px;
   font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 0 16px 10px 0;
+  padding: 16px 16px 10px 0;
   border-bottom: 1px solid var(--border-strong);
 }
 

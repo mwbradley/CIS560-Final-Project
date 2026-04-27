@@ -95,6 +95,11 @@ export default function Dashboard() {
             {/* Roster */}
             <div className="card-dark">
                 <div className="card-title">My Roster</div>
+                <div>
+                    <button>Season 2023</button>
+                    <button>Season 2024</button>
+                    <button>Season 2025</button>
+                </div>
                 {userTeamPlayers.length === 0
                     ? <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No players on your roster yet.</p>
                     : <table className="table-dark-custom">
@@ -103,6 +108,7 @@ export default function Dashboard() {
                                 <th>Player</th>
                                 <th>Position</th>
                                 <th>Team</th>
+                                <th>Remove</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -170,6 +176,7 @@ export default function Dashboard() {
                                 <th>Player</th>
                                 <th>Position</th>
                                 <th>Age</th>
+                                <th>Add</th>
                             </tr>
                         </thead>
                         <tbody>
