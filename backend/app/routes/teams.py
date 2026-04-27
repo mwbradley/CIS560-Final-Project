@@ -56,8 +56,8 @@ def get_wins_losses(season_id):
     results = execute_query(
         """SELECT T.TeamName,
                SUM(IIF(MT.Winner = N'Winner', 1, 0)) AS Wins,
-               SUM(IIF (MT.Winner != N'Winner' AND MT.Winner IS NOT NULL, 1 , 0)) AS Losses,
-               SUM(IIF(MT.Winner IS NULL, 1, 0)) AS Draws
+               SUM(IIF (MT.Winner = N'Loser', 1 , 0)) AS Losses,
+               SUM(IIF(MT.Winner = N'Draw', 1, 0)) AS Draws
            FROM FantasyFootball.Team T
            INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamID = T.TeamID
            INNER JOIN FantasyFootball.MatchTeam MT ON MT.TeamSeasonID = TS.TeamSeasonID

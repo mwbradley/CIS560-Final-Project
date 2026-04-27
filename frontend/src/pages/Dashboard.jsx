@@ -10,6 +10,7 @@ export default function Dashboard() {
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [toggle, setToggle] = useState(false);
+    const [isSelected, setIsSelected] = useState(false);
 
     const [playerName, setPlayerName] = useState("");
     const [teamName, setTeamName] = useState("");
@@ -19,24 +20,24 @@ export default function Dashboard() {
     const [pageNumber, setPageNumber] = useState(1);
 
     const fetchRoster = () => {
-    fetch(`http://localhost:5000/api/userteam/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ seasonID })
-    })
-    .then(res => res.json())
-    .then(data => {
-        setUserTeamPlayers(Array.isArray(data) ? data : []);
-        setLoading(false);
-    })
-    .catch(err => {
-        console.error("Failed to fetch roster:", err);
-        setLoading(false);
-    });
-}
+        fetch(`http://localhost:5000/api/userteam/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ seasonID })
+        })
+        .then(res => res.json())
+        .then(data => {
+            setUserTeamPlayers(Array.isArray(data) ? data : []);
+            setLoading(false);
+        })
+        .catch(err => {
+            console.error("Failed to fetch roster:", err);
+            setLoading(false);
+        });
+    }
 
     useEffect(() => {
         fetchRoster();
@@ -125,7 +126,8 @@ export default function Dashboard() {
             <div className="card-dark">
                 <div className="card-title">My Roster</div>
                 <div className="roster-buttons">
-                    <button onClick={() => handleSeasonChange(1)}>Season 2022</button>
+                    <button onClick={() => handleSeasonChange(1)} 
+                        style={{ backgroundColor: isSelected ? 'blue' : 'gray', color: 'white' }}>Season 2022</button>
                     <button onClick={() => handleSeasonChange(2)}>Season 2023</button>
                     <button onClick={() => handleSeasonChange(3)}>Season 2024</button>
                 </div>

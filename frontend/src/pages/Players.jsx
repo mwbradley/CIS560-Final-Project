@@ -3,14 +3,27 @@ import { useEffect, useState } from "react"
 export default function Players() {
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [pageNumber, setPageNumber] = useState(1);
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/players/")
+        fetch("http://localhost:5000/api/players/", { 
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pageNumber })
+        })
             .then(res => res.json())
             .then(data => setPlayers(data))
             .catch(err => console.error("Failed to fetch players:", err))
             .finally(() => setLoading(false));
-    }, []);
+    }, [pageNumber]);
+
+    const incrementPage = () => {
+        setPageNumber(prevCount => prevCount + 1);
+    }
+
+    const decrementPage = () => {
+        setPageNumber(prevCount => prevCount - 1);
+    }
 
     if (loading) return <p className="loading">Loading players...</p>
 
@@ -26,6 +39,8 @@ export default function Players() {
                             <th>Player</th>
                             <th>Age</th>
                             <th>Position</th>
+                            <th>Goals</th>
+                            <th>Assists</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,10 +49,16 @@ export default function Players() {
                                 <td>{p.PlayerName}</td>
                                 <td>{p.PlayerAge}</td>
                                 <td>{p.Position}</td>
+                                <td>{p.TotalGoals}</td>
+                                <td>{p.TotalAssists}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+                <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: "center" }}>
+                    <button onClick={() => decrementPage()} disabled={pageNumber === 1}>Previous Page</button>
+                    <button onClick={() => incrementPage()} disabled={players.length < 20}>Next Page</button>
+                </div>
             </div>
         </div>
     );

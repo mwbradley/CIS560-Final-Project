@@ -277,26 +277,50 @@ def seed_file(filepath):
         score_str = str(df[df["match_url"] == match_url]["score"].iloc[0])
         home_winner = None
         away_winner = None
+
         try:
-            # score may be garbled by Excel (e.g. "6-Jan" instead of "6-1")
-            # try to parse it
             parts = score_str.split("-")
-            if len(parts) == 2 and parts[0].strip().isdigit() and parts[1].strip().isdigit():
-                home_score = int(parts[0].strip())
-                away_score = int(parts[1].strip())
-                # home_winner = "Winner" if home_score > away_score else "Loser"
-                # away_winner = "Winner" if away_score > home_score else "Loser"
+            if len(parts) == 2:
+                left = parts[0].strip()
+                right = parts[1].strip()
+
+                month_to_num = {
+                    "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4,
+                    "May": 5, "Jun": 6, "Jul": 7, "Aug": 8,
+                    "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12
+                }
+
+                # Normal score e.g. "4-0", "2-2"
+                if left.isdigit() and right.isdigit():
+                    home_score = int(left)
+                    away_score = int(right)
+
+                # Excel garbled e.g. "6-Jan" means 1-6
+                elif left.isdigit() and right[:3].isalpha():
+                    away_score = int(left)
+                    home_score = month_to_num.get(right[:3], 0)
+
+                # Excel garbled e.g. "Mar-00" means 3-0
+                elif left[:3].isalpha() and (right == "00" or right.isdigit()):
+                    home_score = month_to_num.get(left[:3], 0)
+                    away_score = int(right) if right != "00" else 0
+
+                else:
+                    raise ValueError(f"Unrecognized score format: {score_str}")
+
+                # Determine winner
                 if home_score > away_score:
                     home_winner = "Winner"
-                elif home_score < away_score:
-                    home_winner = "Loser"
-                if away_score > home_winner:
-                    away_winner = "Winner"
-                elif away_score < home_winner:
                     away_winner = "Loser"
-                
-        except Exception:
-            pass  # leave winner as None if score can't be parsed
+                elif away_score > home_score:
+                    home_winner = "Loser"
+                    away_winner = "Winner"
+                else:
+                    home_winner = "Draw"
+                    away_winner = "Draw"
+
+        except Exception as e:
+            print(f"Could not parse score '{score_str}': {e}")
 
         # Insert MatchTeam for home
         if home_team in team_season_id_map:
