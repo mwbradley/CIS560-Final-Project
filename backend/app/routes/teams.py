@@ -54,17 +54,29 @@ def get_team_stats(season_id):
 @teams_bp.route("/wins-losses/<int:season_id>", methods=["GET"])
 def get_wins_losses(season_id):
     results = execute_query(
-        """SELECT T.TeamName,
-               SUM(IIF(MT.Winner = T.TeamName, 1, 0)) AS Wins,
-               SUM(IIF (MT.Winner != T.TeamName AND MT.Winner IS NOT NULL, 1 , 0)) AS Losses,
-               SUM(IIF(MT.Winner IS NULL, 1, 0)) AS Draws
+        """SELECT T.TeamName, S.SeasonName,
+               SUM(
+                    CASE 
+                        WHEN MT.Winner = TS.TeamSeasonID THEN 1 
+                        ELSE 0 
+                END) AS Wins,
+                SUM(
+                    CASE 
+                        WHEN MT.Winner IS NOT NULL AND MT.Winner <> TS.TeamSeasonID THEN 1 
+                        ELSE 0 
+                END) AS Losses,
+                SUM(
+                    CASE 
+                        WHEN MT.Winner IS NULL THEN 1 
+                        ELSE 0 
+                END) AS Draws
            FROM FantasyFootball.Team T
            INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamID = T.TeamID
-           INNER JOIN FantasyFootball.MatchTeam MT  ON MT.TeamSeasonID = TS.TeamSeasonID
-           INNER JOIN FantasyFootball.Season S       ON S.SeasonID = TS.SeasonID
+           INNER JOIN FantasyFootball.MatchTeam MT ON MT.TeamSeasonID = TS.TeamSeasonID
+           INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
            WHERE S.SeasonID = ?
-           GROUP BY T.TeamName
+           GROUP BY T.TeamName, S.SeasonName
            ORDER BY Wins DESC""",
-        (season_id,)
+        (season_id,),
     )
     return jsonify(results)
