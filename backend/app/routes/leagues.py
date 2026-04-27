@@ -41,12 +41,12 @@ def get_rankings(season_id):
         """SELECT T.TeamName, S.SeasonName,
                SUM(
                     CASE 
-                        WHEN MT.Winner = TS.TeamSeasonID THEN 1 
+                        WHEN MT.Winner = N'Winner' THEN 1 
                         ELSE 0 
                 END) AS Wins,
                 SUM(
                     CASE 
-                        WHEN MT.Winner IS NOT NULL AND MT.Winner <> TS.TeamSeasonID THEN 1 
+                        WHEN MT.Winner IS NOT NULL AND MT.Winner = N'Loser' THEN 1 
                         ELSE 0 
                 END) AS Losses,
                 SUM(
@@ -57,7 +57,7 @@ def get_rankings(season_id):
                COUNT(DISTINCT MT.MatchID) AS Played,
                SUM(
                     CASE 
-                        WHEN MT.Winner = TS.TeamSeasonID THEN 3 
+                        WHEN MT.Winner = N'Winner' THEN 3 
                         ELSE 0 
                     END) + 
                     SUM(

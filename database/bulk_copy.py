@@ -294,9 +294,6 @@ def seed_file(filepath):
                     away_winner = "Winner"
                 elif away_score < home_winner:
                     away_winner = "Loser"
-                if home_score == away_score:
-                    home_winner = "Draw"
-                    away_winner = "Draw"
                 
         except Exception:
             pass  # leave winner as None if score can't be parsed
