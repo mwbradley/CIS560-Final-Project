@@ -41,8 +41,8 @@ CREATE TABLE FantasyFootball.Player
 CREATE TABLE FantasyFootball.[Match]
 (
 	MatchID INT PRIMARY KEY IDENTITY(1, 1),
-	MatchDate DATE NOT NULL
-	-- MatchLocation NVARCHAR(128) NOT NULL
+	MatchDate DATE NOT NULL,
+	MatchLocation NVARCHAR(128) NOT NULL
 );
 
 CREATE TABLE FantasyFootball.TeamType
@@ -70,7 +70,7 @@ CREATE TABLE FantasyFootball.Season
 (
 	SeasonID INT PRIMARY KEY IDENTITY(1, 1),
 	LeagueID INT NOT NULL,
-	SeasonName NVARCHAR(16) NOT NULL,
+	SeasonName NVARCHAR(64) NOT NULL,
 	SeasonStartDate DATE NOT NULL,
 	SeasonEndDate DATE NOT NULL,
 
@@ -142,7 +142,6 @@ CREATE TABLE FantasyFootball.PlayerMatch
 	MinutesPlayed INT DEFAULT 0,
 	Goals INT DEFAULT 0,
 	Assists INT DEFAULT 0,
-	xG DECIMAL(5, 2),
 	ChancesCreated INT DEFAULT 0,
 	YellowCards INT DEFAULT 0,
 	RedCards INT DEFAULT 0

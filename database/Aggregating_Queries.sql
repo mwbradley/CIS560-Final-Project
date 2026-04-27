@@ -52,10 +52,15 @@ FROM FantasyFootball.Player P
 	INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
 	INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
 GROUP BY P.PlayerName, P.BirthDate, PM.Goals
-ORDER BY TotalGoals DESC
+HAVING SUM(PM.Goals) > 0
+ORDER BY PlayerAge DESC
 
 SELECT *
 FROM FantasyFootball.[User]
 
 SELECT *
 FROM FantasyFootball.UserTeam
+
+
+SELECT *
+FROM FantasyFootball.PlayerMatch
