@@ -188,7 +188,7 @@ export default function Dashboard() {
                         style={{ flex: 1, minWidth: 140 }}
                     />
                 </div>
-                <button className="auth-button" onClick={handleSearch}
+                <button className="auth-button" onClick={() => handleSearch(seasonID)}
                     style={{ width: 'auto', padding: '8px 20px' }}>
                     Search
                 </button>
