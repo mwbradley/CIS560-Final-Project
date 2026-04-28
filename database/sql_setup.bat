@@ -14,17 +14,17 @@ IF %ERRORLEVEL% NEQ 0 (
     pause
     exit /b 1
 )
-echo schema.sql ran successfully.
+echo FantasyFootballSetup.sql ran successfully.
  
 echo.
-echo Step 2: Running test_data.sql...
-sqlcmd -S %SERVER% -d %DATABASE% -E -i test_data.sql
+echo Step 2: Running bulk_copy.py...
+python bulk_copy.py
 IF %ERRORLEVEL% NEQ 0 (
-    echo ERROR: test_data.sql failed. Stopping.
+    echo ERROR: bulk_copy.py failed. Stopping.
     pause
     exit /b 1
 )
-echo test_data.sql ran successfully.
+echo bulk_copy.py ran successfully.
  
 echo.
 echo =============================================
