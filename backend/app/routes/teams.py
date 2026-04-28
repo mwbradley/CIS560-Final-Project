@@ -68,3 +68,16 @@ def get_wins_losses(season_id):
         (season_id,),
     )
     return jsonify(results)
+
+# Get teams for a specific season
+@teams_bp.route("/by-season/<int:season_id>", methods=["GET"])
+def get_teams_by_season(season_id):
+    teams = execute_query(
+        """SELECT DISTINCT T.TeamID, T.TeamName
+             FROM FantasyFootball.Team T
+             INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamID = T.TeamID
+             WHERE TS.SeasonID = ?
+             ORDER BY T.TeamName ASC""",
+        (season_id,),
+    )
+    return jsonify(teams)
