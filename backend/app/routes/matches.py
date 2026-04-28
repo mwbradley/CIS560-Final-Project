@@ -12,8 +12,8 @@ def get_five_recent_matches():
                 AT.TeamName AS AwayTeam,
                 CASE
                     WHEN HMT.Winner IS NULL THEN 'Draw'
-                    WHEN HMT.Winner = 'Winner' THEN HT.TeamName
-                    WHEN HMT.Winner = 'Loser' THEN AT.TeamName
+                    WHEN HMT.Winner = N'Winner' THEN HT.TeamName
+                    WHEN HMT.Winner = N'Loser' THEN AT.TeamName
                 END AS Winner
            FROM FantasyFootball.Match M
                 INNER JOIN FantasyFootball.MatchTeam HMT ON HMT.MatchID = M.MatchID AND HMT.TeamTypeID = 1
@@ -73,8 +73,8 @@ def get_top_matches_for_team(team_season_id):
                 COALESCE(AMP.Goals, 0) AS AwayGoals,
                 CASE
                     WHEN HMT.Winner IS NULL THEN 'Draw'
-                    WHEN HMT.Winner = 'Winner' THEN HT.TeamName
-                    WHEN HMT.Winner = 'Loser' THEN AT.TeamName
+                    WHEN HMT.Winner = N'Winner' THEN HT.TeamName
+                    WHEN HMT.Winner = N'Loser' THEN AT.TeamName
                 END AS Winner
            FROM FantasyFootball.Match M
            INNER JOIN FantasyFootball.MatchTeam HMT ON HMT.MatchID = M.MatchID AND HMT.TeamTypeID = 1
