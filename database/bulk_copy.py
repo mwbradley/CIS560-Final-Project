@@ -308,13 +308,7 @@ def seed_file(filepath):
         away_team = match_row["away_team"]
 
         # Insert Match
-        match_id = get_or_insert(
-            "SELECT MatchID FROM FantasyFootball.Match WHERE MatchDate = ? AND MatchLocation = ?",
-            """INSERT INTO FantasyFootball.Match (MatchDate, MatchLocation) 
-               VALUES (?, ?)""",
-            (match_date, match_location),
-            (match_date, match_location),
-        )
+        
         match_id_map[match_key] = match_id
 
         # Determine winner from score column

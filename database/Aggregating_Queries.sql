@@ -180,3 +180,66 @@ FROM FantasyFootball.Player P
 JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
 JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
 WHERE P.PlayerName LIKE '%Har%'
+
+
+SELECT *
+FROM FantasyFootball.TeamSeason TS	
+	INNER JOIN FantasyFootball.Season S ON TS.SeasonID = S.SeasonID
+	INNER JOIN FantasyFootball.Team T ON TS.TeamID = T.TeamID
+WHERE S.LeagueID = 2
+
+
+
+
+SELECT TOP 5
+	M.MatchID, M.MatchDate, M.MatchLocation,
+	HT.TeamName AS HomeTeam,
+	AT.TeamName AS AwayTeam,
+	COALESCE(HMP.Goals, 0) AS HomeGoals,
+	COALESCE(AMP.Goals, 0) AS AwayGoals,
+	CASE
+		WHEN HMT.Winner = N'Draw' THEN 'Draw'
+		WHEN HMT.TeamSeasonID = 106 AND HMT.Winner = N'Winner' THEN HT.TeamName
+		WHEN HMT.TeamSeasonID = 106 AND HMT.Winner = N'Loser'  THEN AT.TeamName
+		WHEN AMT.TeamSeasonID = 106 AND AMT.Winner = N'Winner' THEN AT.TeamName
+		WHEN AMT.TeamSeasonID = 106 AND AMT.Winner = N'Loser'  THEN HT.TeamName
+	END AS Winner
+FROM FantasyFootball.Match M
+	INNER JOIN FantasyFootball.MatchTeam HMT ON HMT.MatchID = M.MatchID AND HMT.TeamTypeID = 1
+	INNER JOIN FantasyFootball.TeamSeason HTS ON HTS.TeamSeasonID = HMT.TeamSeasonID
+	INNER JOIN FantasyFootball.Team HT ON HT.TeamID = HTS.TeamID
+	INNER JOIN FantasyFootball.MatchTeam AMT ON AMT.MatchID = M.MatchID AND AMT.TeamTypeID = 2
+	INNER JOIN FantasyFootball.TeamSeason ATS ON ATS.TeamSeasonID = AMT.TeamSeasonID
+	INNER JOIN FantasyFootball.Team AT ON AT.TeamID = ATS.TeamID
+	LEFT JOIN (
+		SELECT PM.MatchID, PM.TeamSeasonID, SUM(PM.Goals) AS Goals
+		FROM FantasyFootball.PlayerMatch PM
+		GROUP BY PM.MatchID, PM.TeamSeasonID
+	) HMP ON HMP.MatchID = M.MatchID AND HMP.TeamSeasonID = HMT.TeamSeasonID
+	LEFT JOIN (
+		SELECT PM.MatchID, PM.TeamSeasonID, SUM(PM.Goals) AS Goals
+		FROM FantasyFootball.PlayerMatch PM
+		GROUP BY PM.MatchID, PM.TeamSeasonID
+	) AMP ON AMP.MatchID = M.MatchID AND AMP.TeamSeasonID = AMT.TeamSeasonID
+WHERE HMT.TeamSeasonID = 106 OR AMT.TeamSeasonID = 106
+ORDER BY
+CASE
+    WHEN HMT.TeamSeasonID = 106
+        THEN COALESCE(HMP.Goals, 0) - COALESCE(AMP.Goals, 0)
+    ELSE
+        COALESCE(AMP.Goals, 0) - COALESCE(HMP.Goals, 0)
+END DESC
+
+
+SELECT MatchDate, MatchLocation, COUNT(*) as Count
+FROM FantasyFootball.Match
+GROUP BY MatchDate, MatchLocation
+HAVING COUNT(*) > 1
+
+-- Check MatchID 2098 specifically
+SELECT * FROM FantasyFootball.MatchTeam WHERE MatchID = 2098
+
+SELECT MatchID, COUNT(*) as Count
+FROM FantasyFootball.MatchTeam
+GROUP BY MatchID
+HAVING COUNT(*) > 2
