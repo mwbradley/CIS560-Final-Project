@@ -69,12 +69,13 @@ def get_search_results():
         query += " AND L.LeagueName LIKE ?"
         params.append(f"%{data['leagueName']}%")
     if data["seasonID"]:
-        query += " AND S.SeasonID = ?"
-        params.append((int)(data['seasonID']))
+        placeholders = ",".join(["?" for _ in data["seasonID"]])
+        query += f" AND S.SeasonID IN ({placeholders})"
+        params.extend(data["seasonID"])
 
     query += " ORDER BY P.PlayerName ASC"
     query += " OFFSET (20 * (? - 1)) ROWS FETCH NEXT 20 ROWS ONLY"
-    params.append((int)(data['pageNumber']))
+    params.append(int(data['pageNumber']))
 
-    search_results = execute_query(query, params)
+    search_results = execute_query(query, tuple(params))
     return jsonify(search_results)

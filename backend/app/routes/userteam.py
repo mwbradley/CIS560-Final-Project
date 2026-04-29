@@ -8,7 +8,7 @@ userteam_bp = Blueprint("userteam", __name__)
 @jwt_required()
 def get_user_team():
     user_id = get_jwt_identity()
-    data = request.get_json() or {}  # ✅ read JSON body
+    data = request.get_json()
 
     query = """
         SELECT P.PlayerName, P.Position, T.TeamName, TP.TeamPlayerID
@@ -23,8 +23,9 @@ def get_user_team():
     params = [user_id]
 
     if data.get('seasonID'):
-        query += " AND UT.SeasonID = ?"
-        params.append(data['seasonID'])
+        placeholders = ",".join(["?" for _ in data["seasonID"]])
+        query += f" AND UT.SeasonID IN ({placeholders})"
+        params.extend(data["seasonID"])
 
     team = execute_query(query, tuple(params))
     return jsonify(team), 200
@@ -35,9 +36,19 @@ def get_user_team():
 def add_player():
     user_id = get_jwt_identity()
     data = request.get_json()
+
+    season = execute_query("""
+        SELECT TS.SeasonID 
+        FROM FantasyFootball.TeamPlayer TP
+            INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
+        WHERE TP.TeamPlayerID = ?
+    """, (data["teamPlayerID"],))
+
+    season_id = season[0]["SeasonID"]
+
     execute_query(
         "INSERT INTO FantasyFootball.UserTeam (UserID, TeamPlayerID, SeasonID) VALUES (?, ?, ?)",
-        params=(user_id, data["teamPlayerID"], data["seasonID"]),
+        params=(user_id, data["teamPlayerID"], season_id),
         fetchall=False
     )
     return jsonify({"message": "Player added to your team"}), 201

@@ -16,8 +16,14 @@ export default function Dashboard() {
     const [teamName, setTeamName] = useState("");
     const [leagueName, setLeagueName] = useState("");
 
-    const [seasonID, setSeasonID] = useState(1);
+    const [seasonID, setSeasonID] = useState([1, 4, 7]);
     const [pageNumber, setPageNumber] = useState(1);
+
+    const seasonMap = {
+        "22/23": [1, 4, 7],
+        "23/24": [2, 5, 8],
+        "24/25": [3, 6, 9]
+    };
 
     const fetchRoster = () => {
         fetch(`http://localhost:5000/api/userteam/`, {
@@ -44,8 +50,8 @@ export default function Dashboard() {
     }, [seasonID]);
 
     useEffect(() => {
-    handleSearch();
-    }, [pageNumber]);
+    handleSearch(seasonID);
+    }, [pageNumber, userTeamPlayers]);
 
     const handleDisplayPlayers = () => {
         fetch("http://localhost:5000/api/players/")
@@ -102,9 +108,10 @@ export default function Dashboard() {
         });
     }
 
-    const handleSeasonChange = (seasonID) => {
-        setSeasonID(seasonID);
-        handleSearch(seasonID);
+    const handleSeasonChange = (seasonLabel) => {
+        const ids = seasonMap[seasonLabel];
+        setSeasonID(ids);
+        handleSearch(ids);
     }
 
     const incrementPage = () => {
@@ -126,10 +133,9 @@ export default function Dashboard() {
             <div className="card-dark">
                 <div className="card-title">My Roster</div>
                 <div className="roster-buttons">
-                    <button onClick={() => handleSeasonChange(1)} 
-                        style={{ backgroundColor: isSelected ? 'blue' : 'gray', color: 'white' }}>Season 2022</button>
-                    <button onClick={() => handleSeasonChange(2)}>Season 2023</button>
-                    <button onClick={() => handleSeasonChange(3)}>Season 2024</button>
+                    <button onClick={() => handleSeasonChange("22/23")} style={{ opacity: seasonID.includes(1) ? 1 : 0.4 }}>Season 2022</button>
+                    <button onClick={() => handleSeasonChange("23/24")} style={{ opacity: seasonID.includes(2) ? 1 : 0.4 }}>Season 2023</button>
+                    <button onClick={() => handleSeasonChange("24/25")} style={{ opacity: seasonID.includes(3) ? 1 : 0.4 }}>Season 2024</button>
                 </div>
                 {userTeamPlayers.length === 0
                     ? <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No players on your roster yet.</p>
@@ -156,13 +162,6 @@ export default function Dashboard() {
                         </tbody>
                     </table>
                 }
-                {/* <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                    <button className="auth-button" onClick={handleDisplayPlayers}
-                        style={{ width: 'auto', padding: '8px 20px' }}>
-                        {toggle ? 'Hide Players' : 'Add Player to Roster'}
-                        Add Player to Roster
-                    </button>
-                </div> */}
             </div>
 
             {/* Search */}
@@ -207,7 +206,7 @@ export default function Dashboard() {
                             {players
                                 .filter(p => !userTeamPlayers.some(u => u.TeamPlayerID === p.TeamPlayerID))
                                 .map(p => (
-                                <tr key={p.PlayerID}>
+                                <tr key={p.TeamPlayerID}>
                                     <td>{p.PlayerName}</td>
                                     <td>{p.Position}</td>
                                     <td>{p.PlayerAge}</td>
