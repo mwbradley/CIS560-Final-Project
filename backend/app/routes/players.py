@@ -48,9 +48,12 @@ def get_search_results():
 
     query = """SELECT P.PlayerID, P.PlayerName,  
                 (YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate)) AS PlayerAge, 
-                P.Position, TP.TeamPlayerID, S.SeasonID
+                P.Position, TP.TeamPlayerID, S.SeasonID,
+                SUM(PM.Goals)   AS TotalGoals,
+                SUM(PM.Assists) AS TotalAssists
                FROM FantasyFootball.Player P
                 INNER JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
+                INNER JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
                 INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
                 INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
                 INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
@@ -65,15 +68,16 @@ def get_search_results():
     if data["teamName"]:
         query += " AND T.TeamName LIKE ?"
         params.append(f"%{data['teamName']}%")
-    if data["leagueName"]:
-        query += " AND L.LeagueName LIKE ?"
-        params.append(f"%{data['leagueName']}%")
+    if data["leagueID"]:
+        query += " AND L.LeagueID = ?"
+        params.append(data['leagueID'])
     if data["seasonID"]:
         placeholders = ",".join(["?" for _ in data["seasonID"]])
-        query += f" AND S.SeasonID IN ({placeholders})"
+        query += f" OR S.SeasonID IN ({placeholders})"
         params.extend(data["seasonID"])
 
-    query += " ORDER BY P.PlayerName ASC"
+    query += " GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID, S.SeasonID"
+    query += " ORDER BY TotalGoals DESC, TotalAssists DESC"
     query += " OFFSET (20 * (? - 1)) ROWS FETCH NEXT 20 ROWS ONLY"
     params.append(int(data['pageNumber']))
 

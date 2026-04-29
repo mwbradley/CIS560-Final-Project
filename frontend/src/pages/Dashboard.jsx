@@ -1,29 +1,31 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 
 export default function Dashboard() {
     const username = sessionStorage.getItem("username");
     const token = sessionStorage.getItem("token");
 
-    console.log("TOKEN:", token);
-
     const [userTeamPlayers, setUserTeamPlayers] = useState([]);
+
     const [players, setPlayers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [toggle, setToggle] = useState(false);
-    const [isSelected, setIsSelected] = useState(false);
-
-    const [playerName, setPlayerName] = useState("");
-    const [teamName, setTeamName] = useState("");
-    const [leagueName, setLeagueName] = useState("");
-
-    const [seasonID, setSeasonID] = useState([1, 4, 7]);
+    const [loading, setLoading] = useState(false);
+    const [allLeagues, setAllLeagues] = useState([]);
+    const [seasons, setSeasons] = useState([]);
+    const [teams, setTeams] = useState([]);
     const [pageNumber, setPageNumber] = useState(1);
+    const [playerName, setPlayerName] = useState("");
+    const [selectedLeague, setSelectedLeague] = useState(null);
+    const [selectedSeason, setSelectedSeason] = useState(null);
+    const [selectedTeam, setSelectedTeam] = useState(null);
+    const [selectedTeamName, setSelectedTeamName] = useState("");
 
-    const seasonMap = {
-        "22/23": [1, 4, 7],
-        "23/24": [2, 5, 8],
-        "24/25": [3, 6, 9]
-    };
+    const selectedSeasonIDs = useMemo(() =>
+        seasons.filter(s => s.SeasonName === selectedSeason).map(s => s.SeasonID),
+        [seasons, selectedSeason]
+    );
+
+    const seasonID = selectedSeasonIDs;
+
+    const isReady = selectedLeague !== null && selectedSeasonIDs.length > 0;
 
     const fetchRoster = () => {
         fetch(`http://localhost:5000/api/userteam/`, {
@@ -47,34 +49,85 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchRoster();
-    }, [seasonID]);
+    }, [selectedSeasonIDs]);
 
     useEffect(() => {
-    handleSearch(seasonID);
-    }, [pageNumber, userTeamPlayers]);
-
-    const handleDisplayPlayers = () => {
-        fetch("http://localhost:5000/api/players/")
-            .then(res => res.json())
-            .then(data => {
-                if (!toggle) setToggle(true)
-                else setToggle(false)
-                setPlayers(data);
-            });
-    }
-
-    const handleSearch = (currentSeasonID = seasonID) => {
+        if (!isReady) return;
+        setLoading(true);
         fetch("http://localhost:5000/api/players/search/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ playerName, teamName, leagueName, seasonID: currentSeasonID, pageNumber })
+            body: JSON.stringify({
+                playerName,
+                teamName: selectedTeamName,
+                leagueID: selectedLeague,
+                seasonID: selectedSeasonIDs,
+                pageNumber
+            })
         })
             .then(res => res.json())
+            .then(data => setPlayers(data))
+            .catch(err => console.error("Failed to fetch players:", err))
+            .finally(() => setLoading(false));
+    }, [isReady, pageNumber, selectedLeague, selectedSeasonIDs, selectedTeam, playerName]);
+
+    useEffect(() => {
+        fetch("http://localhost:5000/api/leagues/")
+            .then(res => res.json())
             .then(data => {
-                setToggle(true);
-                setPlayers(data);
-            });
-    }
+                setAllLeagues(data);
+                if (data.length > 0) setSelectedLeague(data[0].LeagueID);
+            })
+            .catch(err => console.error("Failed to fetch leagues:", err));
+    }, []);
+
+    useEffect(() => {
+        if (!selectedLeague) return;
+        setSelectedSeason(null);
+        setSelectedTeam(null);
+        setSelectedTeamName("");
+        setTeams([]);
+
+        fetch(`http://localhost:5000/api/seasons/league/${selectedLeague}`)
+            .then(res => res.json())
+            .then(data => {
+                setSeasons(data);
+                if (data.length > 0) setSelectedSeason(data[0].SeasonName);
+            })
+            .catch(err => console.error("Failed to fetch seasons:", err));
+    }, [selectedLeague]);
+
+    useEffect(() => {
+        if (!selectedSeason) return;
+        const seasonObj = seasons.find(s => s.SeasonName === selectedSeason);
+        if (!seasonObj) return;
+
+        setSelectedTeam(null);
+        setSelectedTeamName("");
+
+        fetch(`http://localhost:5000/api/teams/by-season/${seasonObj.SeasonID}`)
+            .then(res => res.json())
+            .then(data => {
+                setTeams(data);
+                if (data.length > 0) {
+                    setSelectedTeam(data[0].TeamID);
+                    setSelectedTeamName(data[0].TeamName);
+                }
+            })
+            .catch(err => console.error("Failed to fetch teams:", err));
+    }, [selectedSeason, seasons]);
+
+    const handleSeasonChange = (seasonLabel) => {
+        setSelectedSeason(seasonLabel);
+        setPageNumber(1);
+    };
+
+    const handleTeamChange = (e) => {
+        const teamID = Number(e.target.value);
+        const team = teams.find(t => t.TeamID === teamID);
+        setSelectedTeam(teamID);
+        setSelectedTeamName(team?.TeamName ?? "");
+    };
 
     const handleAddPlayer = (teamPlayerID) => {
         fetch("http://localhost:5000/api/userteam/add/", {
@@ -108,12 +161,6 @@ export default function Dashboard() {
         });
     }
 
-    const handleSeasonChange = (seasonLabel) => {
-        const ids = seasonMap[seasonLabel];
-        setSeasonID(ids);
-        handleSearch(ids);
-    }
-
     const incrementPage = () => {
         setPageNumber(prevCount => prevCount + 1);
     }
@@ -133,9 +180,6 @@ export default function Dashboard() {
             <div className="card-dark">
                 <div className="card-title">My Roster</div>
                 <div className="roster-buttons">
-                    <button onClick={() => handleSeasonChange("22/23")} style={{ opacity: seasonID.includes(1) ? 1 : 0.4 }}>Season 2022</button>
-                    <button onClick={() => handleSeasonChange("23/24")} style={{ opacity: seasonID.includes(2) ? 1 : 0.4 }}>Season 2023</button>
-                    <button onClick={() => handleSeasonChange("24/25")} style={{ opacity: seasonID.includes(3) ? 1 : 0.4 }}>Season 2024</button>
                 </div>
                 {userTeamPlayers.length === 0
                     ? <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No players on your roster yet.</p>
@@ -169,30 +213,54 @@ export default function Dashboard() {
                 <div className="card-title">Search Players</div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
                     <input
-                        className="auth-input"
-                        placeholder="Player name"
-                        onChange={e => setPlayerName(e.target.value)}
-                        style={{ flex: 1, minWidth: 140 }}
-                    />
-                    <input
-                        className="auth-input"
-                        placeholder="Team name"
-                        onChange={e => setTeamName(e.target.value)}
-                        style={{ flex: 1, minWidth: 140 }}
-                    />
-                    <input
-                        className="auth-input"
-                        placeholder="League name"
-                        onChange={e => setLeagueName(e.target.value)}
-                        style={{ flex: 1, minWidth: 140 }}
-                    />
+                    className="auth-input"
+                    placeholder="Player name"
+                    onChange={e => setPlayerName(e.target.value)}
+                    style={{ flex: 1, minWidth: 140 }}
+                />
+                <select
+                    className="season-select"
+                    value={selectedLeague ?? ""}
+                    onChange={e => setSelectedLeague(Number(e.target.value))}
+                >
+                    {allLeagues.map(l => (
+                        <option key={l.LeagueID} value={l.LeagueID}>
+                            {l.LeagueName}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    className="season-select"
+                    value={selectedSeason ?? ""}
+                    onChange={e => handleSeasonChange(e.target.value)}
+                >
+                    {seasons.length === 0 ? (
+                        <option disabled value="">No seasons</option>
+                    ) : (
+                        seasons.map(s => (
+                            <option key={s.SeasonID} value={s.SeasonName}>
+                                {s.SeasonName}
+                            </option>
+                        ))
+                    )}
+                </select>
+                <select
+                    className="season-select"
+                    value={selectedTeam ?? ""}
+                    onChange={handleTeamChange}
+                >
+                    {teams.length === 0 ? (
+                        <option disabled value="">No teams</option>
+                    ) : (
+                        teams.map(t => (
+                            <option key={t.TeamID} value={t.TeamID}>
+                                {t.TeamName}
+                            </option>
+                        ))
+                    )}
+                </select>
                 </div>
-                <button className="auth-button" onClick={() => handleSearch(seasonID)}
-                    style={{ width: 'auto', padding: '8px 20px' }}>
-                    Search
-                </button>
-
-                {toggle && (
+                {players.length > 0 && (
                     <table className="table-dark-custom" style={{ marginTop: 16 }}>
                         <thead>
                             <tr>

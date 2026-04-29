@@ -142,3 +142,20 @@ FROM FantasyFootball.Player P
 GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID
 ORDER BY P.PlayerName ASC
 OFFSET (20 * (1 - 1)) ROWS FETCH NEXT 20 ROWS ONLY
+
+
+SELECT P.PlayerID, P.PlayerName,  
+	(YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate)) AS PlayerAge, 
+	P.Position, TP.TeamPlayerID, S.SeasonID,
+	SUM(PM.Goals)   AS TotalGoals,
+	SUM(PM.Assists) AS TotalAssists
+FROM FantasyFootball.Player P
+	INNER JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
+	INNER JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
+	INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
+	INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
+	INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
+	INNER JOIN FantasyFootball.League L ON L.LeagueID = S.LeagueID
+WHERE L.LeagueID = 1 AND S.SeasonID = 1 OR S.SeasonID = 4 OR S.SeasonID = 7 
+GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID, S.SeasonID
+ORDER BY P.PlayerName ASC
