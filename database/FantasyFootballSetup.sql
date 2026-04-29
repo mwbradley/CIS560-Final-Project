@@ -76,7 +76,7 @@ CREATE TABLE FantasyFootball.Season
 
 	CONSTRAINT FK_Season_League FOREIGN KEY(LeagueID) REFERENCES FantasyFootball.League(LeagueID),
 	UNIQUE(LeagueID, SeasonName),
-	UNIQUE(SeasonStartDate)
+	--UNIQUE(SeasonStartDate) //Had to remove this as it caused issues with teams being in the same league
 );
 GO
 
@@ -85,11 +85,11 @@ GO
 CREATE TABLE FantasyFootball.Team
 (
 	TeamID INT PRIMARY KEY IDENTITY(1, 1),
-	SeasonID INT NOT NULL,
+	--SeasonID INT NOT NULL,
 	TeamName NVARCHAR(32),
 
-	CONSTRAINT FK_Team_Season FOREIGN KEY(SeasonID) REFERENCES FantasyFootball.Season(SeasonID),
-	UNIQUE(TeamName)
+	--CONSTRAINT FK_Team_Season FOREIGN KEY(SeasonID) REFERENCES FantasyFootball.Season(SeasonID),
+	UNIQUE(TeamName) -- Had to add SeasonID to unique constraint to allow for teams to be in their respective seasons
 );
 GO
 

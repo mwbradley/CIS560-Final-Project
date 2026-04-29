@@ -8,6 +8,15 @@ from datetime import datetime
 load_dotenv()
 
 # =============================================
+# League Name Formats
+# =============================================
+LEAGUE_NAME_MAP = {
+    "laliga": "LaLiga",
+    "bundesliga": "Bundesliga",
+    "premierleague": "Premier League",
+}
+
+# =============================================
 # Database Connection
 # =============================================
 
@@ -56,9 +65,10 @@ def parse_filename(filepath):
     filename = os.path.basename(filepath).replace(".csv", "")
     parts = filename.split("_")
     # parts = ["Bundesliga", "2022", "23", "player", "match"]
-    league_name = parts[0]
+    raw_league = parts[0].lower()
+    league_name = LEAGUE_NAME_MAP.get(raw_league, parts[0])
     season_name = f"{parts[1]}/{parts[2]}"
-    #season_name = f"{season_label}"
+    # season_name = f"{season_label}"
     return league_name, season_name
 
 # =============================================
@@ -75,11 +85,11 @@ def parse_date(date_str):
     except Exception:
         return None
 
-# =============================================!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+# =============================================
 # Parse minutes played
 # CSV has values like "45", "90", "26-324"
 # We only want the first number
-# =============================================!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+# =============================================
 
 def parse_minutes(min_val):
     try:
@@ -144,11 +154,11 @@ def seed_file(filepath):
     season_end = df["parsed_date"].max()
 
     season_id = get_or_insert(
-        "SELECT SeasonID FROM FantasyFootball.Season WHERE SeasonName = ?",
+        "SELECT SeasonID FROM FantasyFootball.Season WHERE SeasonName = ? AND LeagueID = ?",
         """INSERT INTO FantasyFootball.Season 
            (LeagueID, SeasonName, SeasonStartDate, SeasonEndDate) 
            VALUES (?, ?, ?, ?)""",
-        (season_name,),
+        (season_name, league_id),
         (league_id, season_name, season_start, season_end)
     )
     print(f"SeasonID: {season_id} | {season_start} to {season_end}")
@@ -162,9 +172,9 @@ def seed_file(filepath):
     for team_name in all_teams:
         team_id = get_or_insert(
             "SELECT TeamID FROM FantasyFootball.Team WHERE TeamName = ?",
-            "INSERT INTO FantasyFootball.Team (SeasonID, TeamName) VALUES (?, ?)",
+            "INSERT INTO FantasyFootball.Team (TeamName) VALUES (?)",
             (team_name,),
-            (season_id, team_name)
+            (team_name,)
         )
         team_id_map[team_name] = team_id
 
@@ -177,10 +187,10 @@ def seed_file(filepath):
 
     for team_name, team_id in team_id_map.items():
         ts_id = get_or_insert(
-            """SELECT TeamSeasonID FROM FantasyFootball.TeamSeason 
-               WHERE TeamID = ? AND SeasonID = ?""",
-            """INSERT INTO FantasyFootball.TeamSeason (TeamID, SeasonID) 
-               VALUES (?, ?)""",
+            """SELECT TeamSeasonID FROM FantasyFootball.TeamSeason
+            WHERE TeamID = ? AND SeasonID = ?""",
+            """INSERT INTO FantasyFootball.TeamSeason (TeamID, SeasonID)
+            VALUES (?, ?)""",
             (team_id, season_id),
             (team_id, season_id)
         )
@@ -199,6 +209,14 @@ def seed_file(filepath):
         birthdate = row["Birthdate"] if pd.notna(row["Birthdate"]) else None
         position = parse_position(row["Pos"]) if pd.notna(row["Pos"]) else None
 
+        # ---- ADDED: log missing BirthDate with CSV line numbers ----
+        if birthdate is None:
+            csv_lines = df.index[df["Player"] == row["Player"]].tolist()
+            print(
+                f"  WARNING: Missing BirthDate for player '{player_name}' at CSV row(s) {[i + 2 for i in csv_lines]}"
+            )
+        # ------------------------------------------------------------
+
         player_id = get_or_insert(
             "SELECT PlayerID FROM FantasyFootball.Player WHERE PlayerName = ?",
             """INSERT INTO FantasyFootball.Player (PlayerName, BirthDate, Position) 
@@ -215,11 +233,24 @@ def seed_file(filepath):
     # -----------------------------------------------
     team_player_id_map = {}
 
-    for _, row in df[["Player", "squad_side", "home_team", "away_team"]].drop_duplicates(subset=["Player"]).iterrows():
+    # Build a map of player -> their most frequent team in this file
+    player_team_map = {}
+    for _, row in df[["Player", "squad_side", "home_team", "away_team"]].iterrows():
         player_name = str(row["Player"]).strip()
         team_name = row["home_team"] if row["squad_side"] == "home" else row["away_team"]
+        if team_name in team_season_id_map:
+            if player_name not in player_team_map:
+                player_team_map[player_name] = {}
+            player_team_map[player_name][team_name] = player_team_map[player_name].get(team_name, 0) + 1
 
-        if player_name not in player_id_map or team_name not in team_season_id_map:
+    # Pick the team each player appeared for most
+    player_primary_team = {
+        player: max(teams, key=teams.get)
+        for player, teams in player_team_map.items()
+    }
+
+    for player_name, team_name in player_primary_team.items():
+        if player_name not in player_id_map:
             continue
 
         player_id = player_id_map[player_name]
@@ -227,11 +258,11 @@ def seed_file(filepath):
 
         tp_id = get_or_insert(
             """SELECT TeamPlayerID FROM FantasyFootball.TeamPlayer 
-               WHERE TeamSeasonID = ? AND PlayerID = ?""",
+            WHERE TeamSeasonID = ? AND PlayerID = ?""",
             """INSERT INTO FantasyFootball.TeamPlayer (TeamSeasonID, PlayerID) 
-               VALUES (?, ?)""",
+            VALUES (?, ?)""",
             (ts_id, player_id),
-            (ts_id, player_id)
+            (ts_id, player_id),
         )
         team_player_id_map[player_name] = tp_id
 
@@ -278,6 +309,10 @@ def seed_file(filepath):
         home_winner = None
         away_winner = None
 
+        # ---- ADDED: get CSV row number for score logging ----
+        score_csv_row = df[df["match_url"] == match_url].index[0] + 2
+        # -----------------------------------------------------
+
         try:
             parts = score_str.split("-")
             if len(parts) == 2:
@@ -320,7 +355,10 @@ def seed_file(filepath):
                     away_winner = "Draw"
 
         except Exception as e:
-            print(f"Could not parse score '{score_str}': {e}")
+            # ---- MODIFIED: log CSV row number alongside the score warning ----
+            print(
+                f"  WARNING: Could not parse score '{score_str}' at CSV row {score_csv_row} ({home_team} vs {away_team}): {e}"
+            )
 
         # Insert MatchTeam for home
         if home_team in team_season_id_map:
@@ -364,32 +402,64 @@ def seed_file(filepath):
     for _, row in df.iterrows():
         player_name = str(row["Player"]).strip()
         match_url = row["match_url"]
-
-        if player_name not in team_player_id_map or match_url not in match_id_map:
-            continue
-
-        tp_id = team_player_id_map[player_name]
-        match_id = match_id_map[match_url]
-
         team_name = row["home_team"] if row["squad_side"] == "home" else row["away_team"]
-        if team_name not in team_season_id_map:
+
+        if match_url not in match_id_map or team_name not in team_season_id_map:
             continue
+
+        match_id = match_id_map[match_url]
         ts_id = team_season_id_map[team_name]
+
+        if player_name not in player_id_map:
+            continue
+
+        player_id = player_id_map[player_name]
+
+        # Get or insert TeamPlayer for this specific team
+        tp_id = get_or_insert(
+            """SELECT TeamPlayerID FROM FantasyFootball.TeamPlayer 
+            WHERE TeamSeasonID = ? AND PlayerID = ?""",
+            """INSERT INTO FantasyFootball.TeamPlayer (TeamSeasonID, PlayerID) 
+            VALUES (?, ?)""",
+            (ts_id, player_id),
+            (ts_id, player_id),
+        )
 
         # Check if already inserted
         existing = execute_query(
             """SELECT PlayerMatchID FROM FantasyFootball.PlayerMatch 
-               WHERE MatchID = ? AND TeamPlayerID = ?""",
+            WHERE MatchID = ? AND TeamPlayerID = ?""",
             (match_id, tp_id)
         )
         if existing:
+            execute_query(
+                """UPDATE FantasyFootball.PlayerMatch
+                SET MinutesPlayed = ?,
+                    Goals = ?,
+                    Assists = ?,
+                    ChancesCreated = ?,
+                    YellowCards = ?,
+                    RedCards = ?
+                WHERE MatchID = ? AND TeamPlayerID = ?""",
+                (
+                    parse_minutes(row["Min"]),
+                    int(row["Performance_Gls"]) if pd.notna(row["Performance_Gls"]) else 0,
+                    int(row["Performance_Ast"]) if pd.notna(row["Performance_Ast"]) else 0,
+                    int(row["Performance_Crs"]) if pd.notna(row["Performance_Crs"]) else 0,
+                    int(row["Performance_CrdY"]) if pd.notna(row["Performance_CrdY"]) else 0,
+                    int(row["Performance_CrdR"]) if pd.notna(row["Performance_CrdR"]) else 0,
+                    match_id,
+                    tp_id
+                ),
+                fetchall=False
+            )
             continue
 
         execute_query(
             """INSERT INTO FantasyFootball.PlayerMatch 
-               (MatchID, TeamPlayerID, TeamSeasonID, MinutesPlayed, Goals, Assists, 
+            (MatchID, TeamPlayerID, TeamSeasonID, MinutesPlayed, Goals, Assists, 
                 ChancesCreated, YellowCards, RedCards)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 match_id,
                 tp_id,

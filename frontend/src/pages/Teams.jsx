@@ -37,17 +37,6 @@ export default function Teams() {
             .catch(err => console.error("Failed to fetch seasons:", err));
     }, [selectedLeague]);
 
-    // Gets the Seasons to allow for filtering
-    useEffect(() => {
-        fetch("http://localhost:5000/api/seasons")
-            .then(res => res.json())
-            .then(data => {
-                setSeasons(data);
-                if (data.length > 0) setSelectedSeason(data[0].SeasonID);
-            })
-            .catch(err => console.error("Failed to fetch seasons:", err));
-    }, []);
-
     useEffect(() => {
         if (!selectedSeason) return;
         setLoading(true);
