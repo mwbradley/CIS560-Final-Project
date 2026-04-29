@@ -91,23 +91,11 @@ def parse_date(date_str):
 # We only want the first number
 # =============================================
 
-
 def parse_minutes(min_val):
     try:
         return int(str(min_val).split("-")[0])
     except Exception:
         return 0
-
-
-def parse_int_stat(val):
-    """Safely convert a stat value to native Python int for pyodbc compatibility."""
-    try:
-        if pd.isna(val):
-            return 0
-        return int(val)  # converts numpy.int64 -> Python int
-    except (ValueError, TypeError):
-        return 0
-
 
 # =============================================
 # Parse position - normalize to simple values
@@ -478,11 +466,31 @@ def seed_file(filepath):
                 (
                     ts_id,
                     parse_minutes(row["Min"]),
-                    parse_int_stat(row["Performance_Gls"]),
-                    parse_int_stat(row["Performance_Ast"]),
-                    parse_int_stat(row["Performance_Crs"]),
-                    parse_int_stat(row["Performance_CrdY"]),
-                    parse_int_stat(row["Performance_CrdR"]),
+                    (
+                        int(row["Performance_Gls"])
+                        if pd.notna(row["Performance_Gls"])
+                        else 0
+                    ),
+                    (
+                        int(row["Performance_Ast"])
+                        if pd.notna(row["Performance_Ast"])
+                        else 0
+                    ),
+                    (
+                        int(row["Performance_Crs"])
+                        if pd.notna(row["Performance_Crs"])
+                        else 0
+                    ),
+                    (
+                        int(row["Performance_CrdY"])
+                        if pd.notna(row["Performance_CrdY"])
+                        else 0
+                    ),
+                    (
+                        int(row["Performance_CrdR"])
+                        if pd.notna(row["Performance_CrdR"])
+                        else 0
+                    ),
                     match_id,
                     tp_id,
                     ts_id,
@@ -501,11 +509,19 @@ def seed_file(filepath):
                 tp_id,
                 ts_id,
                 parse_minutes(row["Min"]),
-                parse_int_stat(row["Performance_Gls"]),
-                parse_int_stat(row["Performance_Ast"]),
-                parse_int_stat(row["Performance_Crs"]),
-                parse_int_stat(row["Performance_CrdY"]),
-                parse_int_stat(row["Performance_CrdR"]),
+                int(row["Performance_Gls"]) if pd.notna(row["Performance_Gls"]) else 0,
+                int(row["Performance_Ast"]) if pd.notna(row["Performance_Ast"]) else 0,
+                int(row["Performance_Crs"]) if pd.notna(row["Performance_Crs"]) else 0,
+                (
+                    int(row["Performance_CrdY"])
+                    if pd.notna(row["Performance_CrdY"])
+                    else 0
+                ),
+                (
+                    int(row["Performance_CrdR"])
+                    if pd.notna(row["Performance_CrdR"])
+                    else 0
+                ),
             ),
             fetchall=False,
         )
