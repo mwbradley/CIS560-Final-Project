@@ -22,7 +22,7 @@ def get_leagues():
 @league_bp.route("/<leagueName>", methods=["GET"])
 def get_league(LeagueName):
     league = execute_query(
-        """SELECT L.LeagueID, L.LeagueName, COUNT(*) AS TeamCount
+        """SELECT L.LeagueID, L.LeagueName, COUNT(DISTINCT T.TeamID) AS TeamCount
              FROM FantasyFootball.League L
                 INNER JOIN FantasyFootball.Season S ON S.LeagueID = L.LeagueID
                 INNER JOIN FantasyFootball.TeamSeason TS ON TS.SeasonID = S.SeasonID
@@ -51,7 +51,7 @@ def get_rankings(season_id):
                 END) AS Losses,
                 SUM(
                     CASE 
-                        WHEN MT.Winner IS NULL THEN 1 
+                        WHEN MT.Winner = N'Draw' THEN 1 
                         ELSE 0 
                 END) AS Draws,
                COUNT(DISTINCT MT.MatchID) AS Played,
@@ -62,7 +62,7 @@ def get_rankings(season_id):
                     END) + 
                     SUM(
                         CASE 
-                            WHEN MT.Winner IS NULL THEN 1 
+                            WHEN MT.Winner = N'Draw' THEN 1 
                             ELSE 0 
                 END) AS Points
            FROM FantasyFootball.League L

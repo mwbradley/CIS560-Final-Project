@@ -34,40 +34,41 @@ def get_players_team(teamName):
 @teams_bp.route("/stats/<int:season_id>", methods=["GET"])
 def get_team_stats(season_id):
     stats = execute_query(
-        """SELECT T.TeamName, S.SeasonName,
-             COALESCE(SUM(PM.RedCards), 0)    AS TotalTeamRedCards,
-             COALESCE(SUM(PM.YellowCards), 0) AS TotalTeamYellowCards,
-             COALESCE(SUM(PM.Goals), 0)       AS TotalTeamGoals,
-             COALESCE(SUM(PM.Assists), 0)     AS TotalTeamAssists
+        """SELECT T.TeamID, T.TeamName, S.SeasonName,
+                COALESCE(SUM(PM.RedCards), 0)    AS TotalTeamRedCards,
+                COALESCE(SUM(PM.YellowCards), 0) AS TotalTeamYellowCards,
+                COALESCE(SUM(PM.Goals), 0)       AS TotalTeamGoals,
+                COALESCE(SUM(PM.Assists), 0)     AS TotalTeamAssists
            FROM FantasyFootball.Team T
            INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamID = T.TeamID
            INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
-           LEFT JOIN FantasyFootball.TeamPlayer TP ON TP.TeamSeasonID = TS.TeamSeasonID
-           LEFT JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
+           LEFT JOIN FantasyFootball.PlayerMatch PM ON PM.TeamSeasonID = TS.TeamSeasonID
            WHERE S.SeasonID = ?
-           GROUP BY T.TeamName, S.SeasonName
+           GROUP BY T.TeamID, T.TeamName, S.SeasonName
            ORDER BY T.TeamName ASC""",
         (season_id,),
     )
     return jsonify(stats)
+
 
 @teams_bp.route("/wins-losses/<int:season_id>", methods=["GET"])
 def get_wins_losses(season_id):
     results = execute_query(
         """SELECT T.TeamName,
                SUM(IIF(MT.Winner = N'Winner', 1, 0)) AS Wins,
-               SUM(IIF (MT.Winner = N'Loser', 1 , 0)) AS Losses,
-               SUM(IIF(MT.Winner = N'Draw', 1, 0)) AS Draws
+               SUM(IIF(MT.Winner = N'Loser',  1, 0)) AS Losses,
+               SUM(IIF(MT.Winner = N'Draw',   1, 0)) AS Draws
            FROM FantasyFootball.Team T
            INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamID = T.TeamID
            INNER JOIN FantasyFootball.MatchTeam MT ON MT.TeamSeasonID = TS.TeamSeasonID
            INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
            WHERE S.SeasonID = ?
-           GROUP BY T.TeamName, S.SeasonName
+           GROUP BY T.TeamName
            ORDER BY Wins DESC""",
         (season_id,),
     )
     return jsonify(results)
+
 
 # Get teams for a specific season
 @teams_bp.route("/by-season/<int:season_id>", methods=["GET"])
