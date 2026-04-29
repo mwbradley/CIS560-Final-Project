@@ -91,11 +91,23 @@ def parse_date(date_str):
 # We only want the first number
 # =============================================
 
+
 def parse_minutes(min_val):
     try:
         return int(str(min_val).split("-")[0])
     except Exception:
         return 0
+
+
+def parse_int_stat(val):
+    """Safely convert a stat value to native Python int for pyodbc compatibility."""
+    try:
+        if pd.isna(val):
+            return 0
+        return int(val)  # converts numpy.int64 -> Python int
+    except (ValueError, TypeError):
+        return 0
+
 
 # =============================================
 # Parse position - normalize to simple values
@@ -136,6 +148,9 @@ def seed_file(filepath):
     df["parsed_date"] = df["match_date"].apply(parse_date)
     df = df[df["parsed_date"].notna()]
 
+    df["match_key"] = (
+        df["parsed_date"].astype(str) + "_" + df["home_team"] + "_vs_" + df["away_team"]
+    )
     # -----------------------------------------------
     # 1. League
     # -----------------------------------------------
@@ -286,32 +301,40 @@ def seed_file(filepath):
     # 8. Matches + MatchTeam + PlayerMatch
     # -----------------------------------------------
     match_id_map = {}
-    unique_matches = df[["match_url", "match_date", "home_team", "away_team", "parsed_date"]].drop_duplicates(subset=["match_url"])
+    unique_matches = df[
+        [
+            "match_key",
+            "match_date",
+            "home_team",
+            "away_team",
+            "parsed_date",
+            "match_url",
+        ]
+    ].drop_duplicates(subset=["match_key"])
 
     for _, match_row in unique_matches.iterrows():
-        match_url = match_row["match_url"]
+        match_key = match_row["match_key"]
+        match_location = match_row["match_url"]
         match_date = match_row["parsed_date"]
         home_team = match_row["home_team"]
         away_team = match_row["away_team"]
 
         # Insert Match
         match_id = get_or_insert(
-            "SELECT MatchID FROM FantasyFootball.Match WHERE MatchLocation = ?",
+            "SELECT MatchID FROM FantasyFootball.Match WHERE MatchDate = ? AND MatchLocation = ?",
             """INSERT INTO FantasyFootball.Match (MatchDate, MatchLocation) 
                VALUES (?, ?)""",
-            (match_url,),
-            (match_date, match_url)
+            (match_date, match_location),
+            (match_date, match_location),
         )
-        match_id_map[match_url] = match_id
+        match_id_map[match_key] = match_id
 
         # Determine winner from score column
-        score_str = str(df[df["match_url"] == match_url]["score"].iloc[0])
+        score_str = str(df[df["match_key"] == match_key]["score"].iloc[0])
         home_winner = None
         away_winner = None
 
-        # ---- ADDED: get CSV row number for score logging ----
-        score_csv_row = df[df["match_url"] == match_url].index[0] + 2
-        # -----------------------------------------------------
+        score_csv_row = df[df["match_key"] == match_key].index[0] + 2
 
         try:
             parts = score_str.split("-")
@@ -320,30 +343,32 @@ def seed_file(filepath):
                 right = parts[1].strip()
 
                 month_to_num = {
-                    "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4,
-                    "May": 5, "Jun": 6, "Jul": 7, "Aug": 8,
-                    "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12
+                    "Jan": 1,
+                    "Feb": 2,
+                    "Mar": 3,
+                    "Apr": 4,
+                    "May": 5,
+                    "Jun": 6,
+                    "Jul": 7,
+                    "Aug": 8,
+                    "Sep": 9,
+                    "Oct": 10,
+                    "Nov": 11,
+                    "Dec": 12,
                 }
 
-                # Normal score e.g. "4-0", "2-2"
                 if left.isdigit() and right.isdigit():
                     home_score = int(left)
                     away_score = int(right)
-
-                # Excel garbled e.g. "6-Jan" means 1-6
                 elif left.isdigit() and right[:3].isalpha():
                     away_score = int(left)
                     home_score = month_to_num.get(right[:3], 0)
-
-                # Excel garbled e.g. "Mar-00" means 3-0
                 elif left[:3].isalpha() and (right == "00" or right.isdigit()):
                     home_score = month_to_num.get(left[:3], 0)
                     away_score = int(right) if right != "00" else 0
-
                 else:
                     raise ValueError(f"Unrecognized score format: {score_str}")
 
-                # Determine winner
                 if home_score > away_score:
                     home_winner = "Winner"
                     away_winner = "Loser"
@@ -355,7 +380,6 @@ def seed_file(filepath):
                     away_winner = "Draw"
 
         except Exception as e:
-            # ---- MODIFIED: log CSV row number alongside the score warning ----
             print(
                 f"  WARNING: Could not parse score '{score_str}' at CSV row {score_csv_row} ({home_team} vs {away_team}): {e}"
             )
@@ -366,7 +390,7 @@ def seed_file(filepath):
             existing = execute_query(
                 """SELECT MatchTeamID FROM FantasyFootball.MatchTeam 
                    WHERE MatchID = ? AND TeamTypeID = ? AND TeamSeasonID = ?""",
-                (match_id, home_type_id, home_ts_id)
+                (match_id, home_type_id, home_ts_id),
             )
             if existing:
                 execute_query(
@@ -374,7 +398,7 @@ def seed_file(filepath):
                     SET Winner = ?
                     WHERE MatchID = ? AND TeamTypeID = ? AND TeamSeasonID = ?""",
                     (home_winner, match_id, home_type_id, home_ts_id),
-                    fetchall=False
+                    fetchall=False,
                 )
             else:
                 execute_query(
@@ -382,7 +406,7 @@ def seed_file(filepath):
                     (MatchID, TeamTypeID, TeamSeasonID, Winner)
                     VALUES (?, ?, ?, ?)""",
                     (match_id, home_type_id, home_ts_id, home_winner),
-                    fetchall=False
+                    fetchall=False,
                 )
 
         # Insert MatchTeam for away
@@ -391,14 +415,14 @@ def seed_file(filepath):
             existing = execute_query(
                 """SELECT MatchTeamID FROM FantasyFootball.MatchTeam 
                    WHERE MatchID = ? AND TeamTypeID = ? AND TeamSeasonID = ?""",
-                (match_id, away_type_id, away_ts_id)
+                (match_id, away_type_id, away_ts_id),
             )
             if not existing:
                 execute_query(
                     """INSERT INTO FantasyFootball.MatchTeam 
                        (MatchID, TeamTypeID, TeamSeasonID, Winner) VALUES (?, ?, ?, ?)""",
                     (match_id, away_type_id, away_ts_id, away_winner),
-                    fetchall=False
+                    fetchall=False,
                 )
 
     print(f"Matches inserted: {len(match_id_map)}")
@@ -410,13 +434,15 @@ def seed_file(filepath):
 
     for _, row in df.iterrows():
         player_name = str(row["Player"]).strip()
-        match_url = row["match_url"]
-        team_name = row["home_team"] if row["squad_side"] == "home" else row["away_team"]
+        match_key = f"{row['parsed_date']}_{row['home_team']}_vs_{row['away_team']}"
+        team_name = (
+            row["home_team"] if row["squad_side"] == "home" else row["away_team"]
+        )
 
-        if match_url not in match_id_map or team_name not in team_season_id_map:
+        if match_key not in match_id_map or team_name not in team_season_id_map:
             continue
 
-        match_id = match_id_map[match_url]
+        match_id = match_id_map[match_key]
         ts_id = team_season_id_map[team_name]
 
         if player_name not in player_id_map:
@@ -424,7 +450,6 @@ def seed_file(filepath):
 
         player_id = player_id_map[player_name]
 
-        # Get or insert TeamPlayer for this specific team
         tp_id = get_or_insert(
             """SELECT TeamPlayerID FROM FantasyFootball.TeamPlayer 
             WHERE TeamSeasonID = ? AND PlayerID = ?""",
@@ -434,7 +459,6 @@ def seed_file(filepath):
             (ts_id, player_id),
         )
 
-        # Check if already inserted
         existing = execute_query(
             """SELECT PlayerMatchID FROM FantasyFootball.PlayerMatch 
             WHERE MatchID = ? AND TeamPlayerID = ? AND TeamSeasonID = ?""",
@@ -454,31 +478,11 @@ def seed_file(filepath):
                 (
                     ts_id,
                     parse_minutes(row["Min"]),
-                    (
-                        int(row["Performance_Gls"])
-                        if pd.notna(row["Performance_Gls"])
-                        else 0
-                    ),
-                    (
-                        int(row["Performance_Ast"])
-                        if pd.notna(row["Performance_Ast"])
-                        else 0
-                    ),
-                    (
-                        int(row["Performance_Crs"])
-                        if pd.notna(row["Performance_Crs"])
-                        else 0
-                    ),
-                    (
-                        int(row["Performance_CrdY"])
-                        if pd.notna(row["Performance_CrdY"])
-                        else 0
-                    ),
-                    (
-                        int(row["Performance_CrdR"])
-                        if pd.notna(row["Performance_CrdR"])
-                        else 0
-                    ),
+                    parse_int_stat(row["Performance_Gls"]),
+                    parse_int_stat(row["Performance_Ast"]),
+                    parse_int_stat(row["Performance_Crs"]),
+                    parse_int_stat(row["Performance_CrdY"]),
+                    parse_int_stat(row["Performance_CrdR"]),
                     match_id,
                     tp_id,
                     ts_id,
@@ -497,19 +501,18 @@ def seed_file(filepath):
                 tp_id,
                 ts_id,
                 parse_minutes(row["Min"]),
-                int(row["Performance_Gls"]) if pd.notna(row["Performance_Gls"]) else 0,
-                int(row["Performance_Ast"]) if pd.notna(row["Performance_Ast"]) else 0,
-                int(row["Performance_Crs"]) if pd.notna(row["Performance_Crs"]) else 0,
-                int(row["Performance_CrdY"]) if pd.notna(row["Performance_CrdY"]) else 0,
-                int(row["Performance_CrdR"]) if pd.notna(row["Performance_CrdR"]) else 0,
+                parse_int_stat(row["Performance_Gls"]),
+                parse_int_stat(row["Performance_Ast"]),
+                parse_int_stat(row["Performance_Crs"]),
+                parse_int_stat(row["Performance_CrdY"]),
+                parse_int_stat(row["Performance_CrdR"]),
             ),
-            fetchall=False
+            fetchall=False,
         )
         player_match_count += 1
 
     print(f"PlayerMatch rows inserted: {player_match_count}")
     print(f"Done: {os.path.basename(filepath)}")
-
 
 # =============================================
 # Run for all CSV files in the data/ folder
