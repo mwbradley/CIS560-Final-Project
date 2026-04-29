@@ -16,7 +16,7 @@ export default function Dashboard() {
     const [teamName, setTeamName] = useState("");
     const [leagueName, setLeagueName] = useState("");
 
-    const [seasonID, setSeasonID] = useState(1);
+    const [seasonID, setSeasonID] = useState(1,4,7);
     const [pageNumber, setPageNumber] = useState(1);
 
     const fetchRoster = () => {

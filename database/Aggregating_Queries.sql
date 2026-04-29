@@ -142,3 +142,9 @@ FROM FantasyFootball.Player P
 GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID
 ORDER BY P.PlayerName ASC
 OFFSET (20 * (1 - 1)) ROWS FETCH NEXT 20 ROWS ONLY
+
+
+SELECT S.SeasonID, S.SeasonName
+FROM FantasyFootball.Season S
+WHERE S.LeagueID = 1
+ORDER BY S.SeasonStartDate DESC
