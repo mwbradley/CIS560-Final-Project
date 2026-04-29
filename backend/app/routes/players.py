@@ -7,7 +7,8 @@ players_bp = Blueprint("players", __name__)
 @players_bp.route("/", methods=["POST"])
 def get_players():
     data = request.get_json()
-    players = execute_query("""SELECT P.PlayerID, P.PlayerName,  
+    players = execute_query(
+        """SELECT P.PlayerID, P.PlayerName,  
                                  (YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate)) AS PlayerAge, 
                                  P.Position, TP.TeamPlayerID,
                                  SUM(PM.Goals) AS TotalGoals,
@@ -17,10 +18,12 @@ def get_players():
                                 INNER JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
                                 INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
                                 INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
-                             GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID
-                             ORDER BY TotalGoals DESC, TotalAssists DESC
+                             GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID, S.SeasonID, S.LeagueID
+                             ORDER BY S.SeasonID ASC, S.LeagueID ASC, TotalGoals DESC, TotalAssists DESC
                              OFFSET (20 * (? - 1)) ROWS FETCH NEXT 20 ROWS ONLY
-                            """, data['pageNumber'])
+                            """,
+        data["pageNumber"],
+    )
     return jsonify(players)
 
 
