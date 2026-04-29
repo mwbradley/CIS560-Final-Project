@@ -37,14 +37,14 @@ export default function Dashboard() {
 
     const isReady = selectedLeague !== null && selectedSeasonIDs.length > 0 && selectedTeam !== null;
 
-    const fetchRoster = () => {
+    const fetchRoster = (currentSeasonID = selectedSeasonIDs) => {
         fetch(`http://localhost:5000/api/userteam/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ seasonID })
+            body: JSON.stringify({ seasonID: currentSeasonID })
         })
         .then(res => res.json())
         .then(data => {
@@ -58,7 +58,9 @@ export default function Dashboard() {
     }
 
     useEffect(() => {
-        fetchRoster();
+        if (selectedSeasonIDs.length > 0) {
+            fetchRoster(selectedSeasonIDs);
+        }
     }, [selectedSeasonIDs]);
 
     const handleSearch = () => {
@@ -85,7 +87,7 @@ export default function Dashboard() {
         if (!selectedTeam) return;
 
         handleSearch();
-    }, [pageNumber, selectedLeague, selectedSeasonIDs, selectedTeam]);
+    }, [pageNumber, selectedLeague, selectedSeasonIDs, selectedTeam, userTeamPlayers]);
 
     useEffect(() => {
         fetch("http://localhost:5000/api/leagues/")
@@ -152,12 +154,12 @@ export default function Dashboard() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ teamPlayerID, seasonID })
+            body: JSON.stringify({ teamPlayerID, seasonID: selectedSeasonIDs })
         })
         .then(res => res.json())
         .then(data => {
             console.log(data.message);
-            fetchRoster();
+            fetchRoster(selectedSeasonIDs);
         });
     }
 
@@ -168,12 +170,12 @@ export default function Dashboard() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ teamPlayerID })
+            body: JSON.stringify({ teamPlayerID, seasonID: selectedSeasonIDs })
         })
         .then(res => res.json())
         .then(data => {
             console.log(data.message);
-            fetchRoster();
+            fetchRoster(selectedSeasonIDs);
         });
     }
 
@@ -291,7 +293,7 @@ export default function Dashboard() {
                         </thead>
                         <tbody>
                             {players
-                                .filter(p => !userTeamPlayers.some(u => u.TeamPlayerID === p.TeamPlayerID))
+                                .filter(p => !userTeamPlayers.some(u => u.PlayerID === p.PlayerID))
                                 .map(p => (
                                 <tr key={p.TeamPlayerID}>
                                     <td>{p.PlayerName}</td>
