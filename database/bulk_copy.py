@@ -368,10 +368,19 @@ def seed_file(filepath):
                    WHERE MatchID = ? AND TeamTypeID = ? AND TeamSeasonID = ?""",
                 (match_id, home_type_id, home_ts_id)
             )
-            if not existing:
+            if existing:
+                execute_query(
+                    """UPDATE FantasyFootball.MatchTeam
+                    SET Winner = ?
+                    WHERE MatchID = ? AND TeamTypeID = ? AND TeamSeasonID = ?""",
+                    (home_winner, match_id, home_type_id, home_ts_id),
+                    fetchall=False
+                )
+            else:
                 execute_query(
                     """INSERT INTO FantasyFootball.MatchTeam 
-                       (MatchID, TeamTypeID, TeamSeasonID, Winner) VALUES (?, ?, ?, ?)""",
+                    (MatchID, TeamTypeID, TeamSeasonID, Winner)
+                    VALUES (?, ?, ?, ?)""",
                     (match_id, home_type_id, home_ts_id, home_winner),
                     fetchall=False
                 )
@@ -428,30 +437,53 @@ def seed_file(filepath):
         # Check if already inserted
         existing = execute_query(
             """SELECT PlayerMatchID FROM FantasyFootball.PlayerMatch 
-            WHERE MatchID = ? AND TeamPlayerID = ?""",
-            (match_id, tp_id)
+            WHERE MatchID = ? AND TeamPlayerID = ? AND TeamSeasonID = ?""",
+            (match_id, tp_id, ts_id),
         )
         if existing:
             execute_query(
                 """UPDATE FantasyFootball.PlayerMatch
-                SET MinutesPlayed = ?,
+                SET TeamSeasonID = ?,
+                    MinutesPlayed = ?,
                     Goals = ?,
                     Assists = ?,
                     ChancesCreated = ?,
                     YellowCards = ?,
                     RedCards = ?
-                WHERE MatchID = ? AND TeamPlayerID = ?""",
+                WHERE MatchID = ? AND TeamPlayerID = ? AND TeamSeasonID = ?""",
                 (
+                    ts_id,
                     parse_minutes(row["Min"]),
-                    int(row["Performance_Gls"]) if pd.notna(row["Performance_Gls"]) else 0,
-                    int(row["Performance_Ast"]) if pd.notna(row["Performance_Ast"]) else 0,
-                    int(row["Performance_Crs"]) if pd.notna(row["Performance_Crs"]) else 0,
-                    int(row["Performance_CrdY"]) if pd.notna(row["Performance_CrdY"]) else 0,
-                    int(row["Performance_CrdR"]) if pd.notna(row["Performance_CrdR"]) else 0,
+                    (
+                        int(row["Performance_Gls"])
+                        if pd.notna(row["Performance_Gls"])
+                        else 0
+                    ),
+                    (
+                        int(row["Performance_Ast"])
+                        if pd.notna(row["Performance_Ast"])
+                        else 0
+                    ),
+                    (
+                        int(row["Performance_Crs"])
+                        if pd.notna(row["Performance_Crs"])
+                        else 0
+                    ),
+                    (
+                        int(row["Performance_CrdY"])
+                        if pd.notna(row["Performance_CrdY"])
+                        else 0
+                    ),
+                    (
+                        int(row["Performance_CrdR"])
+                        if pd.notna(row["Performance_CrdR"])
+                        else 0
+                    ),
                     match_id,
-                    tp_id
+                    tp_id,
+                    ts_id,
                 ),
-                fetchall=False
+                fetchall=False,
             )
             continue
 
