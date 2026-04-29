@@ -5,8 +5,10 @@ export default function Players() {
     const [loading, setLoading] = useState(true);
     const [pageNumber, setPageNumber] = useState(1);
 
+    // Reset loading when page changes
     useEffect(() => {
-        fetch("http://localhost:5000/api/players/", { 
+        setLoading(true);
+        fetch("http://localhost:5000/api/players/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ pageNumber })
