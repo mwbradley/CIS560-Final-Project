@@ -18,27 +18,31 @@ export default function Players() {
         [seasons, selectedSeason]
     );
 
-    const isReady = selectedLeague !== null && selectedSeasonIDs.length > 0;
-
-    useEffect(() => {
-        if (!isReady) return;
-        setLoading(true);
+    const handleSearch = () => {
         fetch("http://localhost:5000/api/players/search/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 playerName,
-                teamName: selectedTeamName,
+                teamID: selectedTeam,
                 leagueID: selectedLeague,
                 seasonID: selectedSeasonIDs,
                 pageNumber
             })
         })
-            .then(res => res.json())
-            .then(data => setPlayers(data))
-            .catch(err => console.error("Failed to fetch players:", err))
-            .finally(() => setLoading(false));
-    }, [isReady, pageNumber, selectedLeague, selectedSeasonIDs, selectedTeam, playerName]);
+        .then(res => res.json())
+        .then(data => setPlayers(data))
+        .catch(err => console.error("Failed to fetch players:", err))
+        .finally(() => setLoading(false));
+    }
+
+    useEffect(() => {
+        if (!selectedLeague) return;
+        if (!selectedSeasonIDs.length) return;
+        if (!selectedTeam) return;
+
+        handleSearch();
+    }, [pageNumber, selectedLeague, selectedSeasonIDs, selectedTeam]);
 
     useEffect(() => {
         fetch("http://localhost:5000/api/leagues/")
@@ -160,6 +164,9 @@ export default function Players() {
                         ))
                     )}
                 </select>
+            </div>
+            <div>
+                <button onClick={() => handleSearch()}>Search</button>
             </div>
             <div className="card-dark">
                 <table className="table-dark-custom">

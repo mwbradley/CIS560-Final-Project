@@ -18,14 +18,24 @@ export default function Dashboard() {
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [selectedTeamName, setSelectedTeamName] = useState("");
 
-    const selectedSeasonIDs = useMemo(() =>
-        seasons.filter(s => s.SeasonName === selectedSeason).map(s => s.SeasonID),
-        [seasons, selectedSeason]
+    const selectedSeasonObj = seasons.find(
+        s => s.SeasonName === selectedSeason
     );
 
-    const seasonID = selectedSeasonIDs;
+    const selectedSeasonIDs = useMemo(() => {
+        if (!selectedSeason) return [];
 
-    const isReady = selectedLeague !== null && selectedSeasonIDs.length > 0;
+        const seasonObj = seasons.find(s => s.SeasonName === selectedSeason);
+        if (!seasonObj) return [];
+
+        const id = seasonObj.SeasonID;
+
+        return [id, id + 3, id + 6];
+    }, [selectedSeason, seasons]);
+
+    const seasonID = selectedSeasonIDs[0];
+
+    const isReady = selectedLeague !== null && selectedSeasonIDs.length > 0 && selectedTeam !== null;
 
     const fetchRoster = () => {
         fetch(`http://localhost:5000/api/userteam/`, {
@@ -51,25 +61,31 @@ export default function Dashboard() {
         fetchRoster();
     }, [selectedSeasonIDs]);
 
-    useEffect(() => {
-        if (!isReady) return;
-        setLoading(true);
+    const handleSearch = () => {
         fetch("http://localhost:5000/api/players/search/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 playerName,
-                teamName: selectedTeamName,
+                teamID: selectedTeam,
                 leagueID: selectedLeague,
                 seasonID: selectedSeasonIDs,
                 pageNumber
             })
         })
-            .then(res => res.json())
-            .then(data => setPlayers(data))
-            .catch(err => console.error("Failed to fetch players:", err))
-            .finally(() => setLoading(false));
-    }, [isReady, pageNumber, selectedLeague, selectedSeasonIDs, selectedTeam, playerName]);
+        .then(res => res.json())
+        .then(data => setPlayers(data))
+        .catch(err => console.error("Failed to fetch players:", err))
+        .finally(() => setLoading(false));
+    }
+
+    useEffect(() => {
+        if (!selectedLeague) return;
+        if (!selectedSeasonIDs.length) return;
+        if (!selectedTeam) return;
+
+        handleSearch();
+    }, [pageNumber, selectedLeague, selectedSeasonIDs, selectedTeam]);
 
     useEffect(() => {
         fetch("http://localhost:5000/api/leagues/")
@@ -213,52 +229,55 @@ export default function Dashboard() {
                 <div className="card-title">Search Players</div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
                     <input
-                    className="auth-input"
-                    placeholder="Player name"
-                    onChange={e => setPlayerName(e.target.value)}
-                    style={{ flex: 1, minWidth: 140 }}
-                />
-                <select
-                    className="season-select"
-                    value={selectedLeague ?? ""}
-                    onChange={e => setSelectedLeague(Number(e.target.value))}
-                >
-                    {allLeagues.map(l => (
-                        <option key={l.LeagueID} value={l.LeagueID}>
-                            {l.LeagueName}
-                        </option>
-                    ))}
-                </select>
-                <select
-                    className="season-select"
-                    value={selectedSeason ?? ""}
-                    onChange={e => handleSeasonChange(e.target.value)}
-                >
-                    {seasons.length === 0 ? (
-                        <option disabled value="">No seasons</option>
-                    ) : (
-                        seasons.map(s => (
-                            <option key={s.SeasonID} value={s.SeasonName}>
-                                {s.SeasonName}
+                        className="auth-input"
+                        placeholder="Player name"
+                        onChange={e => setPlayerName(e.target.value)}
+                        style={{ flex: 1, minWidth: 140 }}
+                    />
+                    <select
+                        className="season-select"
+                        value={selectedLeague ?? ""}
+                        onChange={e => setSelectedLeague(Number(e.target.value))}
+                    >
+                        {allLeagues.map(l => (
+                            <option key={l.LeagueID} value={l.LeagueID}>
+                                {l.LeagueName}
                             </option>
-                        ))
-                    )}
-                </select>
-                <select
-                    className="season-select"
-                    value={selectedTeam ?? ""}
-                    onChange={handleTeamChange}
-                >
-                    {teams.length === 0 ? (
-                        <option disabled value="">No teams</option>
-                    ) : (
-                        teams.map(t => (
-                            <option key={t.TeamID} value={t.TeamID}>
-                                {t.TeamName}
-                            </option>
-                        ))
-                    )}
-                </select>
+                        ))}
+                    </select>
+                    <select
+                        className="season-select"
+                        value={selectedSeason ?? ""}
+                        onChange={e => handleSeasonChange(e.target.value)}
+                    >
+                        {seasons.length === 0 ? (
+                            <option disabled value="">No seasons</option>
+                        ) : (
+                            seasons.map(s => (
+                                <option key={s.SeasonID} value={s.SeasonName}>
+                                    {s.SeasonName}
+                                </option>
+                            ))
+                        )}
+                    </select>
+                    <select
+                        className="season-select"
+                        value={selectedTeam ?? ""}
+                        onChange={handleTeamChange}
+                    >
+                        {teams.length === 0 ? (
+                            <option disabled value="">No teams</option>
+                        ) : (
+                            teams.map(t => (
+                                <option key={t.TeamID} value={t.TeamID}>
+                                    {t.TeamName}
+                                </option>
+                            ))
+                        )}
+                    </select>
+                </div>
+                <div>
+                    <button onClick={() => handleSearch()}>Search</button>
                 </div>
                 {players.length > 0 && (
                     <table className="table-dark-custom" style={{ marginTop: 16 }}>

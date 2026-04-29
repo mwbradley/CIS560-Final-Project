@@ -156,6 +156,27 @@ FROM FantasyFootball.Player P
 	INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
 	INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
 	INNER JOIN FantasyFootball.League L ON L.LeagueID = S.LeagueID
-WHERE L.LeagueID = 1 AND S.SeasonID = 1 OR S.SeasonID = 4 OR S.SeasonID = 7 
+WHERE L.LeagueID = 1 AND S.SeasonID IN (3, 6, 9) AND P.PlayerName LIKE N'%Har%'
 GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID, S.SeasonID
 ORDER BY P.PlayerName ASC
+
+
+SELECT DISTINCT SeasonID 
+FROM FantasyFootball.TeamSeason
+ORDER BY SeasonID
+
+
+SELECT COUNT(*) 
+FROM FantasyFootball.TeamSeason
+WHERE SeasonID IN (1,4,7)
+
+SELECT DISTINCT P.PlayerName
+FROM FantasyFootball.Player P
+JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
+WHERE P.PlayerName LIKE '%Har%'
+
+SELECT DISTINCT P.PlayerName
+FROM FantasyFootball.Player P
+JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
+JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
+WHERE P.PlayerName LIKE '%Har%'

@@ -65,15 +65,15 @@ def get_search_results():
     if data["playerName"]:
         query += " AND P.PlayerName LIKE ?"
         params.append(f"%{data['playerName']}%")
-    if data["teamName"]:
-        query += " AND T.TeamName LIKE ?"
-        params.append(f"%{data['teamName']}%")
+    if data["teamID"]:
+        query += " AND T.TeamID = ?"
+        params.append(data['teamID'])
     if data["leagueID"]:
         query += " AND L.LeagueID = ?"
         params.append(data['leagueID'])
     if data["seasonID"]:
         placeholders = ",".join(["?" for _ in data["seasonID"]])
-        query += f" OR S.SeasonID IN ({placeholders})"
+        query += f" AND S.SeasonID IN ({placeholders})"
         params.extend(data["seasonID"])
 
     query += " GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID, S.SeasonID"
