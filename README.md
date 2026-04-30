@@ -4,79 +4,44 @@ Initial idea is sort of like fantasy football, but for soccer. Users will be abl
 ![A table presenting the Fantasy Football schema.](./design/FantasyFootball_Schema.png)
 ![A table presenting the data operations of the tables in the Fantasy Football schema.](./design/Data_Operations.png)
 
-# Start
 
-To be able to run the project you must do a couple of things. The first is to set up a virtual environment (see below) and run the the command
+# Start here
+We have three parts we must set up. Back-end, front-end and load the data. 
 
-pip install -r ./requirements.txt
+## Back-end
+cd into \backend\app
 
-which will install what you need. There are a few more steps that you will be required to install but those are mentioned in the next few sections.
+From here create a virtual environment, in this example we will call it `venv` with the following command.
 
-To start the program you will need to go into a virtual environment (venv) and run the command
-
-python app.py
-
-then you will need to cd into the frontend folder and run
-
-npm start
-o
-
-and it will open the webpage which is a login page. 
-
-If you do not have anything installed, see below and it will walk you through the steps to properly install everything.
-
-## \frontend
-
-Frontend was done using ReactJS. To be able to run the program you first must install all the dependencys by going into the frontend directory and running the command
-
-npm install
-
-which will install everything you need.
-
-## \backend
-
-### venv
-
-You will need to have a virtual environment (venv).
-To do this you will you use the command (if you are on windows)
-
-cd .\backend\
 python -m venv venv
 
-To run your venv (if you are on windows)
+To run the venv we activate it as follows
 
 venv\Scripts\activate
 
-### app
+Finally run the `requirements.txt` file as follows
 
-Before you go any further you will need to create an .env file which will hold three variables:
+pip install -r requirements.txt
 
-1. DB_SERVER=(localdb)\MSSQLLocalDb
-2. DB_NAME=CIS560
-3. JWT_SECRET_KEY=PutWhateverYouWantHere
+### Create the .env file
+Add a new text file and call it `.env`, add the following lines.
 
-app.py is the script that will start the program we will run in the virtual environment (venv). To start you will cd into the backend directory and start the venv (see below for more help). Once you have the venv running then you will be able to use the command
+- DB_SERVER=(localdb)\MSSQLLocalDb
+- DB_NAME=CIS560
+- JWT_SECRET_KEY=PutWhateverYouWantHere
 
-python app.py
+Finally, run the `app.py`
 
-which will start the program.
+app.py is the script that will start the program we will run in the virtual environment (venv). Again from here be sure you have the virtual enviroment active
+## Front-End
+Frontend was done using ReactJS. To be able to run the program you first must install all the dependencies by going into the frontend directory and running the command
 
-### db.py
+cd into `\frontend`
+then do the following comand 
+`npm install`
 
-This is the connection to your database.
-load_dotenv() line will read your .env (create one by clicking new file and naming it ".env" nothing else) file. This is where you will have your DB_SERVER and DB_NAME located.
-
-### \routes
-
-Routes directory is where each feature is connected to a file. So every file holds their own feature. Also where the raw sql would be found.
-Example:
-
-get_player_goals()
-
-This query would get back a selected players goals to be seen on the frontend.
-
-## \database
-
+## Loading Data
+The final part of this, is to load the data. 
 You will need to have a virtual environment (venv).
 To do this you will you use the command (if you are on windows)
 
@@ -87,10 +52,17 @@ To run your venv (if you are on windows)
 
 venv\Scripts\activate
 
+Finally run the `requirements.txt` file as follows
+
+pip install -r requirements.txt
+
+### Create another .env file
 You will also want to create another .env file in this directory and have the following 2 variables:
 
 1. DB_SERVER=(localdb)\MSSQLLocalDb
 2. DB_NAME=CIS560
 
-
 After you have that set up, you need to do this before starting the program and that is run the sql_setup.bat files which will create the tables then read in our data through a python script. 
+
+This will finally allow you to use the data in the website thus allowing you to use our application. 
+
