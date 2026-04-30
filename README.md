@@ -49,6 +49,12 @@ venv\Scripts\activate
 
 ### app
 
+Before you go any further you will need to create an .env file which will hold three variables:
+
+1. DB_SERVER=(localdb)\MSSQLLocalDb
+2. DB_NAME=CIS560
+3. JWT_SECRET_KEY=PutWhateverYouWantHere
+
 app.py is the script that will start the program we will run in the virtual environment (venv). To start you will cd into the backend directory and start the venv (see below for more help). Once you have the venv running then you will be able to use the command
 
 python app.py
@@ -68,3 +74,23 @@ Example:
 get_player_goals()
 
 This query would get back a selected players goals to be seen on the frontend.
+
+## \database
+
+You will need to have a virtual environment (venv).
+To do this you will you use the command (if you are on windows)
+
+cd .\database\
+python -m venv venv
+
+To run your venv (if you are on windows)
+
+venv\Scripts\activate
+
+You will also want to create another .env file in this directory and have the following 2 variables:
+
+1. DB_SERVER=(localdb)\MSSQLLocalDb
+2. DB_NAME=CIS560
+
+
+After you have that set up, you need to do this before starting the program and that is run the sql_setup.bat files which will create the tables then read in our data through a python script. 
