@@ -309,11 +309,11 @@ def seed_file(filepath):
 
         # Insert Match
         match_id = get_or_insert(
-            "SELECT MatchID FROM FantasyFootball.Match WHERE MatchDate = ? AND MatchLocation = ?",
-            """INSERT INTO FantasyFootball.Match (MatchDate, MatchLocation) 
-               VALUES (?, ?)""",
-            (match_date, match_location),
-            (match_date, match_location),
+            "SELECT MatchID FROM FantasyFootball.[Match] WHERE MatchKey = ?",
+            """INSERT INTO FantasyFootball.[Match] (MatchDate, MatchLocation, MatchKey) 
+            VALUES (?, ?, ?)""",
+            (match_key,),
+            (match_date, match_location, match_key),
         )
         match_id_map[match_key] = match_id
 
@@ -349,11 +349,13 @@ def seed_file(filepath):
                     home_score = int(left)
                     away_score = int(right)
                 elif left.isdigit() and right[:3].isalpha():
-                    away_score = int(left)
+                    # e.g. "1-Feb" → originally "1-2", Excel stored as day-month → swap
                     home_score = month_to_num.get(right[:3], 0)
+                    away_score = int(left)
                 elif left[:3].isalpha() and (right == "00" or right.isdigit()):
-                    home_score = month_to_num.get(left[:3], 0)
-                    away_score = int(right) if right != "00" else 0
+                    # "Jan-00" → Excel stored Jan 0th → original was "0-1"
+                    away_score = month_to_num.get(left[:3], 0)
+                    home_score = int(right) if right != "00" else 0
                 else:
                     raise ValueError(f"Unrecognized score format: {score_str}")
 
@@ -528,6 +530,49 @@ def seed_file(filepath):
         player_match_count += 1
 
     print(f"PlayerMatch rows inserted: {player_match_count}")
+    print(f"Done: {os.path.basename(filepath)}")
+
+
+    # -----------------------------------------------
+    # 10. Fix Winner labels based on actual goal totals
+    # -----------------------------------------------
+    execute_query("""
+        WITH GoalTotals AS (
+            SELECT MatchID, TeamSeasonID, SUM(Goals) AS Goals
+            FROM FantasyFootball.PlayerMatch
+            GROUP BY MatchID, TeamSeasonID
+        ),
+        MatchGoals AS (
+            SELECT 
+                HMT.MatchID,
+                HMT.TeamSeasonID AS HomeTeamSeasonID,
+                AMT.TeamSeasonID AS AwayTeamSeasonID,
+                COALESCE(HG.Goals, 0) AS HomeGoals,
+                COALESCE(AG.Goals, 0) AS AwayGoals
+            FROM FantasyFootball.MatchTeam HMT
+            INNER JOIN FantasyFootball.MatchTeam AMT 
+                ON AMT.MatchID = HMT.MatchID AND AMT.TeamTypeID = 2
+            LEFT JOIN GoalTotals HG 
+                ON HG.MatchID = HMT.MatchID AND HG.TeamSeasonID = HMT.TeamSeasonID
+            LEFT JOIN GoalTotals AG 
+                ON AG.MatchID = AMT.MatchID AND AG.TeamSeasonID = AMT.TeamSeasonID
+            WHERE HMT.TeamTypeID = 1
+        )
+        UPDATE MT
+        SET MT.Winner = CASE
+            WHEN MT.TeamTypeID = 1 AND MG.HomeGoals > MG.AwayGoals THEN 'Winner'
+            WHEN MT.TeamTypeID = 1 AND MG.HomeGoals < MG.AwayGoals THEN 'Loser'
+            WHEN MT.TeamTypeID = 2 AND MG.AwayGoals > MG.HomeGoals THEN 'Winner'
+            WHEN MT.TeamTypeID = 2 AND MG.AwayGoals < MG.HomeGoals THEN 'Loser'
+            ELSE 'Draw'
+        END
+        FROM FantasyFootball.MatchTeam MT
+        INNER JOIN MatchGoals MG 
+            ON MG.MatchID = MT.MatchID
+            AND (MT.TeamSeasonID = MG.HomeTeamSeasonID OR MT.TeamSeasonID = MG.AwayTeamSeasonID)
+    """, fetchall=False)
+
+    print(f"Winner labels corrected.")
     print(f"Done: {os.path.basename(filepath)}")
 
 # =============================================

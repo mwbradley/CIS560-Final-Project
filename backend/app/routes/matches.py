@@ -67,15 +67,14 @@ def get_top_matches_for_team(team_season_id):
         """SELECT TOP 5
                 M.MatchID, M.MatchDate, M.MatchLocation,
                 HT.TeamName AS HomeTeam,
-                AT.TeamName AS AwayTeam,
+                [AT].TeamName AS AwayTeam,
                 COALESCE(HMP.Goals, 0) AS HomeGoals,
                 COALESCE(AMP.Goals, 0) AS AwayGoals,
+                HMT.Winner AS HomeWinner, AMT.Winner AS AwayWinner,
                 CASE
-                    WHEN HMT.Winner = N'Draw' THEN 'Draw'
-                    WHEN HMT.TeamSeasonID = ? AND HMT.Winner = N'Winner' THEN HT.TeamName
-                    WHEN HMT.TeamSeasonID = ? AND HMT.Winner = N'Loser'  THEN AT.TeamName
-                    WHEN AMT.TeamSeasonID = ? AND AMT.Winner = N'Winner' THEN AT.TeamName
-                    WHEN AMT.TeamSeasonID = ? AND AMT.Winner = N'Loser'  THEN HT.TeamName
+                    WHEN HMT.Winner = N'Winner' THEN HT.TeamName
+                    WHEN AMT.Winner = N'Winner' THEN [AT].TeamName
+                    WHEN HMT.Winner = N'Draw'   THEN N'Draw'
                 END AS Winner
            FROM FantasyFootball.Match M
            INNER JOIN FantasyFootball.MatchTeam HMT ON HMT.MatchID = M.MatchID AND HMT.TeamTypeID = 1
@@ -83,7 +82,7 @@ def get_top_matches_for_team(team_season_id):
            INNER JOIN FantasyFootball.Team HT ON HT.TeamID = HTS.TeamID
            INNER JOIN FantasyFootball.MatchTeam AMT ON AMT.MatchID = M.MatchID AND AMT.TeamTypeID = 2
            INNER JOIN FantasyFootball.TeamSeason ATS ON ATS.TeamSeasonID = AMT.TeamSeasonID
-           INNER JOIN FantasyFootball.Team AT ON AT.TeamID = ATS.TeamID
+           INNER JOIN FantasyFootball.Team [AT] ON [AT].TeamID = ATS.TeamID
            LEFT JOIN (
                 SELECT PM.MatchID, PM.TeamSeasonID, SUM(PM.Goals) AS Goals
                 FROM FantasyFootball.PlayerMatch PM
@@ -103,10 +102,6 @@ def get_top_matches_for_team(team_season_id):
                         COALESCE(AMP.Goals, 0) - COALESCE(HMP.Goals, 0)
                 END DESC""",
         (
-            team_season_id,
-            team_season_id,
-            team_season_id,
-            team_season_id,
             team_season_id,
             team_season_id,
             team_season_id,
