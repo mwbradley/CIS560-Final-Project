@@ -11,7 +11,7 @@ def register():
     data = request.get_json()
     hashed = bcrypt.generate_password_hash(data["password"]).decode("utf-8")
     execute_query(
-        "INSERT INTO FantasyFootball.[User] (Username, PasswordHash, Email) VALUES (?, ?, ?)",
+        "INSERT INTO FantasyFootball.AppUser (Username, PasswordHash, Email) VALUES (?, ?, ?)",
         params=(data["username"], hashed, data["email"]),
         fetchall=False
     )
@@ -21,11 +21,13 @@ def register():
 def login():
     data = request.get_json()
     user = execute_query(
-        "SELECT * FROM FantasyFootball.[User] WHERE Username = ?",
+        "SELECT * FROM FantasyFootball.AppUser WHERE Username = ?",
         params=(data["username"],)
     )
-    if not user or not bcrypt.check_password_hash(user[0]["PasswordHash"], data["password"]):
-        return jsonify({"message": "Invalid credentials"}), 401
+    if not user:
+        return jsonify({"message": "Account not found"}), 401
+    if not bcrypt.check_password_hash(user[0]["PasswordHash"], data["password"]):
+        return jsonify({"message": "Incorrect password"}), 401
     token = create_access_token(identity=str(user[0]["UserID"]))
     return jsonify({
         "token": token,

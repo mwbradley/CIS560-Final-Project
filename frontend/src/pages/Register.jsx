@@ -20,16 +20,32 @@ export default function Register() {
             });
     }
 
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            handleRegister();
+        }
+    }
+
     return (
         <div className="auth-container">
             <h1 className="page-title">Register</h1>
             <p className="page-subtitle">Create a new account</p>
 
             <div className="auth-card">
-                <input className="auth-input" placeholder="Username" onChange={e => setUsername(e.target.value)} />
-                <input className="auth-input" placeholder="Email" type="email" onChange={e => setEmail(e.target.value)} />
-                <input className="auth-input" placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
-                <button className="auth-button" onClick={handleRegister}>Register</button>
+                <div style={{display: 'flex', gap: '15px', justifyContent: 'center'}}>
+                    <input className="auth-input" placeholder="Username" onChange={e => setUsername(e.target.value)} />
+                    <input className="auth-input" placeholder="Email" type="email" onChange={e => setEmail(e.target.value)} />
+                    <input 
+                    className="auth-input" 
+                    placeholder="Password" 
+                    type="password" 
+                    onKeyDown={handleKeyDown}
+                    onChange={e => setPassword(e.target.value)
+                    } />
+                </div>
+                <div style={{paddingTop: '10px'}}>
+                    <button className="auth-button" onClick={handleRegister}>Register</button>
+                </div>
                 <p className="auth-link">
                     Already have an account? <a href="/login">Login</a>
                 </p>

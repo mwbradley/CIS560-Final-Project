@@ -180,3 +180,21 @@ FROM FantasyFootball.Player P
 JOIN FantasyFootball.TeamPlayer TP ON TP.PlayerID = P.PlayerID
 JOIN FantasyFootball.PlayerMatch PM ON PM.TeamPlayerID = TP.TeamPlayerID
 WHERE P.PlayerName LIKE '%Har%'
+
+
+
+SELECT * 
+FROM FantasyFootball.AppUser
+
+SELECT P.PlayerID, P.PlayerName, P.Position, T.TeamName, TP.TeamPlayerID
+        FROM FantasyFootball.UserTeam UT
+            INNER JOIN FantasyFootball.TeamPlayer TP ON TP.TeamPlayerID = UT.TeamPlayerID
+            INNER JOIN FantasyFootball.Player P ON P.PlayerID = TP.PlayerID
+            INNER JOIN FantasyFootball.TeamSeason TS ON TS.TeamSeasonID = TP.TeamSeasonID
+            INNER JOIN FantasyFootball.Season S ON S.SeasonID = TS.SeasonID
+            INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
+        WHERE UT.UserID = 2
+
+SELECT SeasonID, SeasonName, LeagueID 
+FROM FantasyFootball.Season 
+ORDER BY LeagueID, SeasonID

@@ -28,11 +28,11 @@ def get_team_seasons(teamName):
 @season_bp.route("/", methods=["GET"])
 def get_seasons():
     seasons = execute_query(
-        """SELECT S.SeasonName, CONVERT(VARCHAR, S.SeasonStartDate, 101) AS SeasonStartDate, CONVERT(VARCHAR, S.SeasonEndDate, 101) AS SeasonEndDate,
+        """SELECT S.SeasonID, S.SeasonName, CONVERT(VARCHAR, S.SeasonStartDate, 101) AS SeasonStartDate, CONVERT(VARCHAR, S.SeasonEndDate, 101) AS SeasonEndDate,
                 L.LeagueName
             FROM FantasyFootball.Season S
             INNER JOIN FantasyFootball.League L ON S.LeagueID = L.LeagueID
-            ORDER BY S.SeasonName ASC"""
+            ORDER BY S.SeasonStartDate ASC"""
     )
     return jsonify(seasons)
 

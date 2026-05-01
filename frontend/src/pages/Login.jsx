@@ -6,7 +6,10 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
+    const [error, setError] = useState("");
+
     const handleLogin = () => {
+        setError("");
         fetch("http://localhost:5000/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -14,25 +17,58 @@ export default function Login() {
         })
         .then(res => res.json())
         .then(data => {
-            sessionStorage.setItem("token", data.token);
-            sessionStorage.setItem("username", data.username);
-            navigate("/dashboard"); // this is different than than our start page which is /
-      });
+            if (data.token) {
+                sessionStorage.setItem("token", data.token);
+                sessionStorage.setItem("username", data.username);
+                navigate("/dashboard");
+            } else {
+                setError(data.message);  // show error from backend
+            }
+        });
+    }
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            handleLogin();
+        }
     }
 
     return (
+        // <div className="auth-container">
+        //     <h1 className="page-title">Login</h1>
+        //     <p className="page-subtitle">Sign in to your account</p>
+
+        //     <div className="auth-card">
+        //         <input className="auth-input" placeholder="Username" onChange={e => setUsername(e.target.value)} />
+        //         <input className="auth-input" placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
+        //         <button className="auth-button" onClick={handleLogin}>Login</button>
+        //         <p className="auth-link">
+        //             Don't have an account? <a href="/register">Register</a>
+        //         </p>
+        //     </div>
+        // </div>
         <div className="auth-container">
             <h1 className="page-title">Login</h1>
             <p className="page-subtitle">Sign in to your account</p>
-
+            {error && <p style={{ color: "red" }}>{error}</p>}
             <div className="auth-card">
-                <input className="auth-input" placeholder="Username" onChange={e => setUsername(e.target.value)} />
-                <input className="auth-input" placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
-                <button className="auth-button" onClick={handleLogin}>Login</button>
+                <div style={{display: 'flex', gap: '15px', justifyContent: 'center'}}>
+                    <input className="auth-input" placeholder="Username" onChange={e => setUsername(e.target.value)} />
+                    <input 
+                    className="auth-input" 
+                    placeholder="Password" 
+                    type="password" 
+                    onKeyDown={handleKeyDown}
+                    onChange={e => setPassword(e.target.value)} />
+                </div>
+                <div style={{paddingTop: '10px'}}>
+                    <button className="auth-button" onClick={handleLogin}>Login</button>
+                </div>  
                 <p className="auth-link">
                     Don't have an account? <a href="/register">Register</a>
                 </p>
             </div>
+            
         </div>
     );
 }
