@@ -5,13 +5,13 @@ export default function Players() {
     const [loading, setLoading] = useState(false);
     const [allLeagues, setAllLeagues] = useState([]);
     const [seasons, setSeasons] = useState([]);
-    const [teams, setTeams] = useState([]);
+    //const [teams, setTeams] = useState([]);
     const [pageNumber, setPageNumber] = useState(1);
     const [playerName, setPlayerName] = useState("");
     const [selectedLeague, setSelectedLeague] = useState(null);
     const [selectedSeason, setSelectedSeason] = useState(null);
     const [selectedTeam, setSelectedTeam] = useState(null);
-    const [selectedTeamName, setSelectedTeamName] = useState("");
+    //const [selectedTeamName, setSelectedTeamName] = useState("");
 
     const selectedSeasonIDs = useMemo(() =>
         seasons.filter(s => s.SeasonName === selectedSeason).map(s => s.SeasonID),
@@ -39,10 +39,10 @@ export default function Players() {
     useEffect(() => {
         if (!selectedLeague) return;
         if (!selectedSeasonIDs.length) return;
-        if (!selectedTeam) return;
+        //if (!selectedTeam) return;
 
         handleSearch();
-    }, [pageNumber, selectedLeague, selectedSeasonIDs, selectedTeam]);
+    }, [pageNumber, selectedLeague, selectedSeasonIDs]);
 
     useEffect(() => {
         fetch("http://localhost:5000/api/leagues/")
@@ -57,9 +57,9 @@ export default function Players() {
     useEffect(() => {
         if (!selectedLeague) return;
         setSelectedSeason(null);
-        setSelectedTeam(null);
-        setSelectedTeamName("");
-        setTeams([]);
+        //setSelectedTeam(null);
+        //setSelectedTeamName("");
+        //setTeams([]);
 
         fetch(`http://localhost:5000/api/seasons/league/${selectedLeague}`)
             .then(res => res.json())
@@ -70,37 +70,37 @@ export default function Players() {
             .catch(err => console.error("Failed to fetch seasons:", err));
     }, [selectedLeague]);
 
-    useEffect(() => {
-        if (!selectedSeason) return;
-        const seasonObj = seasons.find(s => s.SeasonName === selectedSeason);
-        if (!seasonObj) return;
+    // useEffect(() => {
+    //     if (!selectedSeason) return;
+    //     const seasonObj = seasons.find(s => s.SeasonName === selectedSeason);
+    //     if (!seasonObj) return;
 
-        setSelectedTeam(null);
-        setSelectedTeamName("");
+    //     //setSelectedTeam(null);
+    //     //setSelectedTeamName("");
 
-        fetch(`http://localhost:5000/api/teams/by-season/${seasonObj.SeasonID}`)
-            .then(res => res.json())
-            .then(data => {
-                setTeams(data);
-                if (data.length > 0) {
-                    setSelectedTeam(data[0].TeamID);
-                    setSelectedTeamName(data[0].TeamName);
-                }
-            })
-            .catch(err => console.error("Failed to fetch teams:", err));
-    }, [selectedSeason, seasons]);
+    //     fetch(`http://localhost:5000/api/teams/by-season/${seasonObj.SeasonID}`)
+    //         .then(res => res.json())
+    //         .then(data => {
+    //             setTeams(data);
+    //             if (data.length > 0) {
+    //                 setSelectedTeam(data[0].TeamID);
+    //                 setSelectedTeamName(data[0].TeamName);
+    //             }
+    //         })
+    //         .catch(err => console.error("Failed to fetch teams:", err));
+    // }, [selectedSeason, seasons]);
 
     const handleSeasonChange = (seasonLabel) => {
         setSelectedSeason(seasonLabel);
         setPageNumber(1);
     };
 
-    const handleTeamChange = (e) => {
-        const teamID = Number(e.target.value);
-        const team = teams.find(t => t.TeamID === teamID);
-        setSelectedTeam(teamID);
-        setSelectedTeamName(team?.TeamName ?? "");
-    };
+    // const handleTeamChange = (e) => {
+    //     const teamID = Number(e.target.value);
+    //     const team = teams.find(t => t.TeamID === teamID);
+    //     setSelectedTeam(teamID);
+    //     setSelectedTeamName(team?.TeamName ?? "");
+    // };
 
     const incrementPage = () => {
         setPageNumber(prevCount => prevCount + 1);
@@ -108,6 +108,10 @@ export default function Players() {
 
     const decrementPage = () => {
         setPageNumber(prevCount => prevCount - 1);
+    }
+
+    const handleKeyDown = (event) => {
+        handleSearch();
     }
 
 
@@ -122,6 +126,8 @@ export default function Players() {
                     placeholder="Player name"
                     onChange={e => setPlayerName(e.target.value)}
                     style={{ flex: 1, minWidth: 140 }}
+                    type="text"
+                    onKeyDown={handleKeyDown}
                 />
                 <select
                     className="season-select"
@@ -149,7 +155,7 @@ export default function Players() {
                         ))
                     )}
                 </select>
-                <select
+                {/* <select
                     className="season-select"
                     value={selectedTeam ?? ""}
                     onChange={handleTeamChange}
@@ -163,10 +169,10 @@ export default function Players() {
                             </option>
                         ))
                     )}
-                </select>
+                </select> */}
             </div>
-            <div>
-                <button onClick={() => handleSearch()}>Search</button>
+            <div style={{paddingBottom: '15px'}}>
+                <button className="auth-button" onClick={() => handleSearch()}>Search</button>
             </div>
             <div className="card-dark">
                 <table className="table-dark-custom">
@@ -177,6 +183,7 @@ export default function Players() {
                             <th>Position</th>
                             <th>Goals</th>
                             <th>Assists</th>
+                            <th>Team</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -187,6 +194,7 @@ export default function Players() {
                                 <td>{p.Position}</td>
                                 <td>{p.TotalGoals}</td>
                                 <td>{p.TotalAssists}</td>
+                                <td>{p.TeamName}</td>
                             </tr>
                         ))}
                     </tbody>

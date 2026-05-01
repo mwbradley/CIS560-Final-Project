@@ -176,6 +176,10 @@ export default function Dashboard() {
         });
     }
 
+    const handleKeyDown = (event) => {
+        handleSearch();
+    }
+
     const incrementPage = () => setPageNumber(prev => prev + 1);
     const decrementPage = () => setPageNumber(prev => prev - 1);
 
@@ -225,6 +229,8 @@ export default function Dashboard() {
                         placeholder="Player name"
                         onChange={e => setPlayerName(e.target.value)}
                         style={{ flex: 1, minWidth: 140 }}
+                        type="text"
+                        onKeyDown={handleKeyDown}
                     />
                     <select
                         className="season-select"
