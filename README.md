@@ -55,6 +55,8 @@ Finally run the `requirements.txt` file as follows
 
 pip install -r requirements.txt
 
+Finally run the `bulk_copy.py`, to copy the things into the sql set up.
+
 ### Create another .env file
 You will also want to create another .env file in this directory and have the following 2 variables:
 
@@ -64,4 +66,5 @@ You will also want to create another .env file in this directory and have the fo
 After you have that set up, you need to do this before starting the program and that is run the sql_setup.bat files which will create the tables then read in our data through a python script. 
 
 This will finally allow you to use the data in the website thus allowing you to use our application. 
+
 

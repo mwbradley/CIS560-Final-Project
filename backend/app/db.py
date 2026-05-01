@@ -6,10 +6,10 @@ load_dotenv()
 
 def get_connection():
     conn = pyodbc.connect(
-        f"DRIVER={{ODBC Driver 17 for SQL Server}};"
-        f"SERVER={os.getenv('DB_SERVER')};"
-        f"DATABASE={os.getenv('DB_NAME')};"
-        f"Trusted_Connection=yes;"
+        "DRIVER={ODBC Driver 17 for SQL Server};"
+        "SERVER=(localdb)\\MSSQLLocalDB;"
+        "DATABASE=CIS560;"
+        "Trusted_Connection=yes;"
     )
     return conn
 
