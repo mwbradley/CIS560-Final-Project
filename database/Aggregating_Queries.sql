@@ -166,9 +166,10 @@ FROM FantasyFootball.TeamSeason
 ORDER BY SeasonID
 
 
-SELECT COUNT(*) 
-FROM FantasyFootball.TeamSeason
-WHERE SeasonID IN (1,4,7)
+SELECT *
+FROM FantasyFootball.TeamSeason TS
+    INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
+WHERE T.TeamName = N'Arsenal'
 
 SELECT DISTINCT P.PlayerName
 FROM FantasyFootball.Player P
@@ -195,6 +196,132 @@ SELECT P.PlayerID, P.PlayerName, P.Position, T.TeamName, TP.TeamPlayerID
             INNER JOIN FantasyFootball.Team T ON T.TeamID = TS.TeamID
         WHERE UT.UserID = 2
 
-SELECT SeasonID, SeasonName, LeagueID 
+SELECT SeasonID, SeasonName, LeagueID
 FROM FantasyFootball.Season 
 ORDER BY LeagueID, SeasonID
+
+SELECT MatchID, COUNT(*) 
+FROM FantasyFootball.MatchTeam 
+WHERE MatchID = 2816
+GROUP BY MatchID
+
+
+SELECT TOP 5
+                M.MatchID, M.MatchDate, M.MatchLocation,
+                HT.TeamName AS HomeTeam,
+                [AT].TeamName AS AwayTeam,
+                COALESCE(HMP.Goals, 0) AS HomeGoals,
+                COALESCE(AMP.Goals, 0) AS AwayGoals,
+                HMT.Winner AS HomeWinner, AMT.Winner AS AwayWinner,
+                CASE
+                    WHEN HMT.TeamSeasonID = 39 AND HMT.Winner = N'Winner' THEN HT.TeamName
+                    WHEN HMT.TeamSeasonID = 39 AND HMT.Winner = N'Loser'  THEN [AT].TeamName
+                    WHEN AMT.TeamSeasonID = 39 AND AMT.Winner = N'Winner' THEN [AT].TeamName
+                    WHEN AMT.TeamSeasonID = 39 AND AMT.Winner = N'Loser'  THEN HT.TeamName
+                    WHEN HMT.Winner = N'Draw' AND AMT.Winner = N'Draw' THEN 'Draw'
+                END AS Winner
+           FROM FantasyFootball.Match M
+           INNER JOIN FantasyFootball.MatchTeam HMT ON HMT.MatchID = M.MatchID AND HMT.TeamTypeID = 1
+           INNER JOIN FantasyFootball.TeamSeason HTS ON HTS.TeamSeasonID = HMT.TeamSeasonID
+           INNER JOIN FantasyFootball.Team HT ON HT.TeamID = HTS.TeamID
+           INNER JOIN FantasyFootball.MatchTeam AMT ON AMT.MatchID = M.MatchID AND AMT.TeamTypeID = 2
+           INNER JOIN FantasyFootball.TeamSeason ATS ON ATS.TeamSeasonID = AMT.TeamSeasonID
+           INNER JOIN FantasyFootball.Team [AT] ON [AT].TeamID = ATS.TeamID
+           LEFT JOIN (
+                SELECT PM.MatchID, PM.TeamSeasonID, SUM(PM.Goals) AS Goals
+                FROM FantasyFootball.PlayerMatch PM
+                GROUP BY PM.MatchID, PM.TeamSeasonID
+           ) HMP ON HMP.MatchID = M.MatchID AND HMP.TeamSeasonID = HMT.TeamSeasonID
+           LEFT JOIN (
+                SELECT PM.MatchID, PM.TeamSeasonID, SUM(PM.Goals) AS Goals
+                FROM FantasyFootball.PlayerMatch PM
+                GROUP BY PM.MatchID, PM.TeamSeasonID
+           ) AMP ON AMP.MatchID = M.MatchID AND AMP.TeamSeasonID = AMT.TeamSeasonID
+           WHERE HMT.TeamSeasonID = 39 OR AMT.TeamSeasonID = 39
+           ORDER BY
+                CASE
+                    WHEN HMT.TeamSeasonID = 39
+                        THEN COALESCE(HMP.Goals, 0) - COALESCE(AMP.Goals, 0)
+                    ELSE
+                        COALESCE(AMP.Goals, 0) - COALESCE(HMP.Goals, 0)
+                END DESC
+
+SELECT 
+    M.MatchID, M.MatchDate,
+    HT.TeamName AS HomeTeam, HMT.Winner AS HomeWinner,
+    AT.TeamName AS AwayTeam, AMT.Winner AS AwayWinner,
+    HMP.Goals AS HomeGoals, AMP.Goals AS AwayGoals
+FROM FantasyFootball.Match M
+INNER JOIN FantasyFootball.MatchTeam HMT ON HMT.MatchID = M.MatchID AND HMT.TeamTypeID = 1
+INNER JOIN FantasyFootball.TeamSeason HTS ON HTS.TeamSeasonID = HMT.TeamSeasonID
+INNER JOIN FantasyFootball.Team HT ON HT.TeamID = HTS.TeamID
+INNER JOIN FantasyFootball.MatchTeam AMT ON AMT.MatchID = M.MatchID AND AMT.TeamTypeID = 2
+INNER JOIN FantasyFootball.TeamSeason ATS ON ATS.TeamSeasonID = AMT.TeamSeasonID
+INNER JOIN FantasyFootball.Team AT ON AT.TeamID = ATS.TeamID
+LEFT JOIN (SELECT MatchID, TeamSeasonID, SUM(Goals) AS Goals FROM FantasyFootball.PlayerMatch GROUP BY MatchID, TeamSeasonID) HMP 
+    ON HMP.MatchID = M.MatchID AND HMP.TeamSeasonID = HMT.TeamSeasonID
+LEFT JOIN (SELECT MatchID, TeamSeasonID, SUM(Goals) AS Goals FROM FantasyFootball.PlayerMatch GROUP BY MatchID, TeamSeasonID) AMP 
+    ON AMP.MatchID = M.MatchID AND AMP.TeamSeasonID = AMT.TeamSeasonID
+WHERE 
+    (HMP.Goals > AMP.Goals AND HMT.Winner != 'Winner')
+    OR (AMP.Goals > HMP.Goals AND AMT.Winner != 'Winner')
+    OR (HMP.Goals = AMP.Goals AND HMT.Winner != 'Draw')
+
+
+UPDATE MT
+SET MT.Winner = CASE
+    WHEN HMP.Goals > AMP.Goals AND MT.TeamTypeID = 1 THEN 'Winner'
+    WHEN HMP.Goals > AMP.Goals AND MT.TeamTypeID = 2 THEN 'Loser'
+    WHEN AMP.Goals > HMP.Goals AND MT.TeamTypeID = 2 THEN 'Winner'
+    WHEN AMP.Goals > HMP.Goals AND MT.TeamTypeID = 1 THEN 'Loser'
+    ELSE 'Draw'
+END
+FROM FantasyFootball.MatchTeam MT
+INNER JOIN (
+    SELECT MatchID, TeamSeasonID, SUM(Goals) AS Goals
+    FROM FantasyFootball.PlayerMatch
+    GROUP BY MatchID, TeamSeasonID
+) HMP ON HMP.MatchID = MT.MatchID AND HMP.TeamSeasonID = MT.TeamSeasonID
+    AND MT.TeamTypeID = 1
+INNER JOIN FantasyFootball.MatchTeam MT2 ON MT2.MatchID = MT.MatchID AND MT2.TeamTypeID = 2
+INNER JOIN (
+    SELECT MatchID, TeamSeasonID, SUM(Goals) AS Goals
+    FROM FantasyFootball.PlayerMatch
+    GROUP BY MatchID, TeamSeasonID
+) AMP ON AMP.MatchID = MT2.MatchID AND AMP.TeamSeasonID = MT2.TeamSeasonID
+
+
+
+WITH GoalTotals AS (
+    SELECT MatchID, TeamSeasonID, SUM(Goals) AS Goals
+    FROM FantasyFootball.PlayerMatch
+    GROUP BY MatchID, TeamSeasonID
+),
+MatchGoals AS (
+    SELECT 
+        HMT.MatchID,
+        HMT.TeamSeasonID AS HomeTeamSeasonID,
+        AMT.TeamSeasonID AS AwayTeamSeasonID,
+        COALESCE(HG.Goals, 0) AS HomeGoals,
+        COALESCE(AG.Goals, 0) AS AwayGoals
+    FROM FantasyFootball.MatchTeam HMT
+    INNER JOIN FantasyFootball.MatchTeam AMT 
+        ON AMT.MatchID = HMT.MatchID AND AMT.TeamTypeID = 2
+    LEFT JOIN GoalTotals HG 
+        ON HG.MatchID = HMT.MatchID AND HG.TeamSeasonID = HMT.TeamSeasonID
+    LEFT JOIN GoalTotals AG 
+        ON AG.MatchID = AMT.MatchID AND AG.TeamSeasonID = AMT.TeamSeasonID
+    WHERE HMT.TeamTypeID = 1
+)
+UPDATE MT
+SET MT.Winner = CASE
+    WHEN MT.TeamTypeID = 1 AND MG.HomeGoals > MG.AwayGoals THEN 'Winner'
+    WHEN MT.TeamTypeID = 1 AND MG.HomeGoals < MG.AwayGoals THEN 'Loser'
+    WHEN MT.TeamTypeID = 2 AND MG.AwayGoals > MG.HomeGoals THEN 'Winner'
+    WHEN MT.TeamTypeID = 2 AND MG.AwayGoals < MG.HomeGoals THEN 'Loser'
+    ELSE 'Draw'
+END
+FROM FantasyFootball.MatchTeam MT
+INNER JOIN MatchGoals MG 
+    ON MG.MatchID = MT.MatchID
+    AND (MT.TeamSeasonID = MG.HomeTeamSeasonID OR MT.TeamSeasonID = MG.AwayTeamSeasonID)

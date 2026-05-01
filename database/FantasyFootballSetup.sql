@@ -42,7 +42,8 @@ CREATE TABLE FantasyFootball.[Match]
 (
 	MatchID INT PRIMARY KEY IDENTITY(1, 1),
 	MatchDate DATE NOT NULL,
-	MatchLocation NVARCHAR(128) NOT NULL
+	MatchLocation NVARCHAR(128) NOT NULL,
+	MatchKey NVARCHAR(128) NOT NULL UNIQUE
 );
 
 CREATE TABLE FantasyFootball.TeamType

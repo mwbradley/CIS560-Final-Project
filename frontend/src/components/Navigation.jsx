@@ -21,9 +21,13 @@ function Navigation() {
                 <Navbar.Toggle />
                 <Navbar.Collapse>
                     <Nav className="ms-auto fw-bold fs-6">
-                        {/* Always visible */}
-                        <Nav.Link as={Link} to="/register" active={location.pathname === '/register'}>Register</Nav.Link>
-                        <Nav.Link as={Link} to="/login" active={location.pathname === '/login'}>Login</Nav.Link>
+                        { /* Only visible before login */}
+                        {!isLoggedIn && (
+                            <>
+                                <Nav.Link as={Link} to="/register" active={location.pathname === '/register'}>Register</Nav.Link>
+                                <Nav.Link as={Link} to="/login" active={location.pathname === '/login'}>Login</Nav.Link>
+                            </>
+                            )}
 
                         {/* Only visible after login */}
                         {isLoggedIn && (
