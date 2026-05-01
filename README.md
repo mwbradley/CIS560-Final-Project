@@ -6,6 +6,8 @@ Initial idea is sort of like fantasy football, but for soccer. Users will be abl
 
 # Start
 
+Before starting make sure you have everything installed first. See below for more directions!!
+
 To be able to run the project you must do a couple of things. The first is to set up a virtual environment (see below) and run the the command
 
 pip install -r ./requirements.txt
