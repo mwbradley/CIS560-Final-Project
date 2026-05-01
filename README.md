@@ -33,6 +33,18 @@ npm install
 
 which will install everything you need.
 
+## \database
+
+Go into the the database directory. Here you will need to run the venv again, and then install the requirements text file to be able to insert the data. 
+
+python -m venv venv
+
+then venv\Scripts\activate then pip install -r requirements.txt
+
+After you have those installed and running you now want to run the sql_setup file.
+It will take around 5-10 minutes to insert all the data depending on your computer. 
+After it is setup then you are able to start the program.
+
 ## \backend
 
 ### venv
