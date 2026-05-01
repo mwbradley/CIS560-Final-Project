@@ -5,8 +5,7 @@ Initial idea is sort of like fantasy football, but for soccer. Users will be abl
 ![A table presenting the data operations of the tables in the Fantasy Football schema.](./design/Data_Operations.png)
 
 
-# Start here
-We have three parts we must set up. Back-end, front-end and load the data. 
+To be able to run the project you must do a couple of things. The first is to set up a virtual environment (see below) and run the the command
 
 ## Back-end
 cd into \backend\app

@@ -8,13 +8,13 @@ set DATABASE=CIS560
  
 echo.
 echo Step 1: Running schema.sql...
-sqlcmd -S %SERVER% -d %DATABASE% -E -i FantasyFootballSetup.sql
+sqlcmd -S %SERVER% -d %DATABASE% -E -i Tables.sql
 IF %ERRORLEVEL% NEQ 0 (
-    echo ERROR: FantasyFootballSetup.sql failed. Stopping.
+    echo ERROR: Tables.sql failed. Stopping.
     pause
     exit /b 1
 )
-echo FantasyFootballSetup.sql ran successfully.
+echo Tables.sql ran successfully.
  
 echo.
 echo Step 2: Running bulk_copy.py...
