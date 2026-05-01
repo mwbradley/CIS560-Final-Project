@@ -47,7 +47,7 @@ def get_search_results():
     data = request.get_json()
 
     query = """SELECT P.PlayerID, P.PlayerName,  
-                (YEAR(SYSDATETIMEOFFSET()) - YEAR(P.BirthDate)) AS PlayerAge, 
+                (YEAR(S.SeasonStartDate) - YEAR(P.BirthDate)) AS PlayerAge, 
                 P.Position, TP.TeamPlayerID, S.SeasonID, T.TeamName,
                 SUM(PM.Goals)   AS TotalGoals,
                 SUM(PM.Assists) AS TotalAssists
@@ -76,7 +76,7 @@ def get_search_results():
         query += f" AND S.SeasonID IN ({placeholders})"
         params.extend(data["seasonID"])
 
-    query += " GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID, S.SeasonID, T.TeamName"
+    query += " GROUP BY P.PlayerID, P.PlayerName, P.BirthDate, P.Position, TP.TeamPlayerID, S.SeasonID, T.TeamName, S.SeasonStartDate"
     query += " ORDER BY TotalGoals DESC, TotalAssists DESC"
     query += " OFFSET (20 * (? - 1)) ROWS FETCH NEXT 20 ROWS ONLY"
     params.append(int(data['pageNumber']))
